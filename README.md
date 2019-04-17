@@ -26,6 +26,10 @@ BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
   
   <code>$ pip install clickhouse-driver </code>
   
+## How to run
+
+<code> python3 main.py </code>
+  
 ## (Удалить этот пойнт потом) Как использовать clickhouse в питоне
 
 Вообще посмотрите эту <a href="https://github.com/mymarilyn/clickhouse-driver">линку</a> - 
