@@ -26,6 +26,8 @@ BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
   
   <code>$ pip install clickhouse-driver </code>
   
+4. Install PyQt5. <a href="https://www.metachris.com/2016/03/how-to-install-qt56-pyqt5-virtualenv-python3/">Link</a>
+  
 ## How to run
 
 <code> python3 main.py </code>
