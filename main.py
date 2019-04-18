@@ -43,7 +43,7 @@ class GanttApp(Qt.QMainWindow):
                 self.taskTable.setItem(i, j, item)
 
     def add_task(self):
-        self.tasks.add(name=self.taskLine.text(), start_date=datetime.today(), creation_date=datetime.today(),
+        self.tasks.add(name=self.taskLine.text(), start_date=str(datetime.today().date()), creation_date=datetime.today(),
                        duration=1)
         values = self.tasks.query(f"select * from {self.tasks.table_name} where name='{self.taskLine.text()}'")
         self.taskTable.setRowCount(self.tasks.rows)
@@ -51,7 +51,7 @@ class GanttApp(Qt.QMainWindow):
             item = Qt.QTableWidgetItem(str(values[0][i]))
             if attributes[i] in ['name', 'creation_date']:
                 item.setFlags(QtCore.Qt.ItemIsEditable)
-            self.lock = True  # lock signal to edit_task_meta trigger
+            self.lock = True  # lock signal from edit_task_meta trigger
             self.taskTable.setItem(self.tasks.rows - 1, i, item)
             self.lock = False
 
