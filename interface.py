@@ -1,7 +1,7 @@
 from clickhouse_driver import Client
 from datetime import datetime
 
-attributes = {'name': 'String', 'start_date': 'Date', 'duration': 'Int32'}
+attributes = ['name', 'start_date', 'duration', 'creation_date']
 
 
 class Table:
@@ -11,7 +11,6 @@ class Table:
         self.table_name = name
         self.rows = len(self.get_values())
         self.cols = len(attributes)
-        self.attrs = attributes.keys()
 
     def get_columns(self):
         columns = self.client.execute(f'describe {self.table_name}')
@@ -48,4 +47,7 @@ class Table:
 
 if __name__ == '__main__':
     t = Table('Task')
-    print(t.select_all_by(name='task 1'))
+    d = datetime.today().date()
+    print(f"alter table Task update start_date = '{d}' where name = 'task 0'")
+    t.query(f"alter table Task update start_date = {d} where name = 'task 0'")
+

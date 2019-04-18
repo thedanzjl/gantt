@@ -3,13 +3,12 @@ from PyQt5 import uic
 from interface import *
 from datetime import datetime
 
-
 import sys
 
 
 class GanttApp(Qt.QMainWindow):
-
     tasks = Table('Task')
+    lock = False
 
     def __init__(self, name):
         super().__init__()
@@ -34,30 +33,53 @@ class GanttApp(Qt.QMainWindow):
         values = self.tasks.get_values()
         self.taskTable.setRowCount(len(values))
         self.taskTable.setColumnCount(len(attributes))
-        self.taskTable.setHorizontalHeaderLabels(attributes.keys())
+        self.taskTable.setHorizontalHeaderLabels(attributes)
 
         for i, row in enumerate(range(len(values))):
             for j, col in enumerate(range(len(attributes))):
                 item = Qt.QTableWidgetItem(str(values[i][j]))
-                if col <= 1:
+                if attributes[col] in ['name', 'creation_date']:
                     item.setFlags(QtCore.Qt.ItemIsEditable)
                 self.taskTable.setItem(i, j, item)
 
     def add_task(self):
-        self.tasks.add(name=self.taskLine.text(), start_date=datetime.today(), duration=1)
+        self.tasks.add(name=self.taskLine.text(), start_date=datetime.today(), creation_date=datetime.today(),
+                       duration=1)
         values = self.tasks.query(f"select * from {self.tasks.table_name} where name='{self.taskLine.text()}'")
         self.taskTable.setRowCount(self.tasks.rows)
         for i in range(len(attributes)):
-            self.taskTable.setItem(self.tasks.rows-1, i, Qt.QTableWidgetItem(str(values[0][i])))
+            item = Qt.QTableWidgetItem(str(values[0][i]))
+            if attributes[i] in ['name', 'creation_date']:
+                item.setFlags(QtCore.Qt.ItemIsEditable)
+            self.lock = True  # lock signal to edit_task_meta trigger
+            self.taskTable.setItem(self.tasks.rows - 1, i, item)
+            self.lock = False
 
     def edit_task_meta(self, item):
+        if self.lock:
+            return
         row = self.taskTable.row(item)
         col = self.taskTable.column(item)
         name = self.taskTable.item(row, 0).text()
         data = item.text()
+        if attributes[col] == 'start_date':
+            try:
+                datetime.strptime(data, "%Y-%M-%d")
+            except ValueError:
+                Qt.QMessageBox.critical(self, 'Error', "Invalid date format")
+                previous_value = self.tasks.query(f"select start_date from Task where name = '{name}'")[0][0]
+                self.taskTable.setItem(row, col, Qt.QTableWidgetItem(previous_value))
+                return
+        if attributes[col] == 'duration':
+            if not data.isdigit():
+                Qt.QMessageBox.critical(self, 'Error', "Invalid int format")
+                previous_value = self.tasks.query(f"select duration from Task where name = '{name}'")[0][0]
+                self.taskTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
+                return
         if not data.isdigit():
             data = f"'{data}'"
-        self.tasks.update_by_name(name, value_to_update=(self.taskTable.horizontalHeaderItem(col).text(), data))
+        print(data)
+        self.tasks.update_by_name(name, value_to_update=(attributes[col], data))
 
 
 if __name__ == '__main__':

@@ -8,10 +8,10 @@ def main():
     client.execute('DROP TABLE IF EXISTS Task')
     client.execute(''
                    'CREATE TABLE Task '
-                   '(name String, start_date Date, duration Int32) '
-                   'ENGINE = MergeTree(start_date, name, 8192)')
+                   '(name String, start_date String, duration Int32, creation_date Date) '
+                   'ENGINE = MergeTree(creation_date, name, 8192)')
 
-    values = [[f'task {i}', datetime.today(), randint(1, 10)] for i in range(10)]
+    values = [[f'task {i}', str(datetime.today().date()), randint(1, 10), datetime.today()] for i in range(10)]
 
     client.execute('insert into Task values ', values)
 
