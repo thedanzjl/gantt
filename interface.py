@@ -1,20 +1,19 @@
 from clickhouse_driver import Client
 from datetime import datetime
 
-attributes = ['name', 'start_date', 'duration', 'creation_date']
-
 
 class Table:
 
-    def __init__(self, name):
+    """
+    Representation of ClickHouse table.
+    Before use, make sure that docker container is running (more in README.md).
+    """
+
+    def __init__(self, name, attributes):
         self.client = Client(host='localhost')
         self.table_name = name
         self.rows = len(self.get_values())
         self.cols = len(attributes)
-
-    def get_columns(self):
-        columns = self.client.execute(f'describe {self.table_name}')
-        return list(map(lambda x: x[0], columns))
 
     def get_values(self):
         return self.client.execute(f'select * from {self.table_name}')
@@ -46,8 +45,5 @@ class Table:
 
 
 if __name__ == '__main__':
-    t = Table('Task')
-    d = datetime.today().date()
-    print(f"alter table Task update start_date = '{d}' where name = 'task 0'")
-    t.query(f"alter table Task update start_date = {d} where name = 'task 0'")
+    pass
 
