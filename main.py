@@ -1,9 +1,11 @@
-from PyQt5 import Qt, QtCore
-from PyQt5 import uic
-from interface import *
+import sys
 from datetime import datetime
 
-import sys
+from PyQt5 import QtWidgets as Qt
+from PyQt5 import QtCore
+from PyQt5 import uic
+
+from interface import *
 
 # attributes for Task table
 attributes = [
@@ -17,7 +19,7 @@ class GanttApp(Qt.QMainWindow):
 
     def __init__(self, name):
         super().__init__()
-        self.client = Client(host='localhost')
+        self.client = Client(host='192.168.99.100')
         self.setWindowTitle(name)
         self.init_ui()
 
