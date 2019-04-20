@@ -11,10 +11,12 @@ from interface import *
 attributes = [
         'name', 'start_date', 'duration', 'creation_date'
     ]
+users_attributes = ['name', 'creation_date']
 
 
 class GanttApp(Qt.QMainWindow):
     tasks = Table('Task', attributes)
+    users = Table('User', users_attributes)
     lock = False
 
     def __init__(self, name):
@@ -33,6 +35,10 @@ class GanttApp(Qt.QMainWindow):
         self.display()
         self.taskDetailTable.itemChanged.connect(self.edit_task_meta)
         self.taskTable.itemClicked.connect(self.display_meta)
+
+        self.addUserButton.clicked.connect(self.add_user)
+        self.userLine.returnPressed.connect(self.add_user)
+        self.display_user()
 
     def display(self):
         """
@@ -74,7 +80,7 @@ class GanttApp(Qt.QMainWindow):
 
     def add_task(self):
         name = self.taskLine.text()
-        self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today(),
+        self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
                        duration=1)
         self.taskTable.setRowCount(self.tasks.rows)
 
@@ -108,6 +114,26 @@ class GanttApp(Qt.QMainWindow):
             data = f"'{data}'"
         print(data)
         self.tasks.update_by_name(name, value_to_update=(attributes[col + 1], data))
+
+    def add_user(self):
+        name = self.userLine.text()
+        self.users.add(name=name, creation_date=datetime.today().date())
+        self.userTable.setRowCount(self.users.rows)
+
+        item = Qt.QTableWidgetItem(name)
+        self.lock = True
+        self.userTable.setItem(self.users.rows - 1, 0, item)
+        self.lock = False
+
+    def display_user(self):
+        values = self.users.get_values()
+        self.userTable.setRowCount(len(values))
+
+        self.userTable.setColumnCount(1)
+
+        for row in range(len(values)):
+            item = Qt.QTableWidgetItem(values[row][0])
+            self.userTable.setItem(row, 0, item)
 
 
 if __name__ == '__main__':
