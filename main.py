@@ -112,6 +112,12 @@ class GanttApp(Qt.QMainWindow):
                 previous_value = self.tasks.query(f"select duration from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
+        if attributes[col + 1] == 'assigned_user':
+            if (data not in [list(i)[0] for i in self.users.query('select name from User')]) and (data != 'None'):
+                Qt.QMessageBox.critical(self, 'Error', "There is no such user")
+                previous_value = self.tasks.query(f"select assigned_user from Task where name = '{name}'")[0][0]
+                self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
+                return
         if not data.isdigit():
             data = f"'{data}'"
         print(data)
