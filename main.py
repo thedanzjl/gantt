@@ -9,7 +9,7 @@ from interface import *
 
 # attributes for Task table
 attributes = [
-        'name', 'start_date', 'duration', 'creation_date'
+        'name', 'start_date', 'duration', 'assigned_user', 'creation_date'
     ]
 users_attributes = ['name', 'creation_date']
 
@@ -30,6 +30,7 @@ class GanttApp(Qt.QMainWindow):
         initialises GUI. Write down here all widgets, tabs and stuff like that
         """
         uic.loadUi('gantt.ui', self)
+        self.userComboBox.addItems([list(i)[0] for i in self.users.query('select name from User')])
         self.addTaskButton.clicked.connect(self.add_task)
         self.taskLine.returnPressed.connect(self.add_task)
         self.display()
@@ -80,8 +81,9 @@ class GanttApp(Qt.QMainWindow):
 
     def add_task(self):
         name = self.taskLine.text()
+        assigned_user = self.userComboBox.currentText()
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
-                       duration=1)
+                       duration=1, assigned_user=assigned_user)
         self.taskTable.setRowCount(self.tasks.rows)
 
         item = Qt.QTableWidgetItem(name)
@@ -115,16 +117,6 @@ class GanttApp(Qt.QMainWindow):
         print(data)
         self.tasks.update_by_name(name, value_to_update=(attributes[col + 1], data))
 
-    def add_user(self):
-        name = self.userLine.text()
-        self.users.add(name=name, creation_date=datetime.today().date())
-        self.userTable.setRowCount(self.users.rows)
-
-        item = Qt.QTableWidgetItem(name)
-        self.lock = True
-        self.userTable.setItem(self.users.rows - 1, 0, item)
-        self.lock = False
-
     def display_user(self):
         values = self.users.get_values()
         self.userTable.setRowCount(len(values))
@@ -134,6 +126,17 @@ class GanttApp(Qt.QMainWindow):
         for row in range(len(values)):
             item = Qt.QTableWidgetItem(values[row][0])
             self.userTable.setItem(row, 0, item)
+
+    def add_user(self):
+        name = self.userLine.text()
+        self.users.add(name=name, creation_date=datetime.today().date())
+        self.userTable.setRowCount(self.users.rows)
+        self.userComboBox.addItem(name)
+
+        item = Qt.QTableWidgetItem(name)
+        self.lock = True
+        self.userTable.setItem(self.users.rows - 1, 0, item)
+        self.lock = False
 
 
 if __name__ == '__main__':
