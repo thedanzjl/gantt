@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>818</width>
+    <height>560</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -17,10 +23,10 @@
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>0</y>
-      <width>451</width>
-      <height>481</height>
+      <x>11</x>
+      <y>33</y>
+      <width>401</width>
+      <height>471</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -48,26 +54,63 @@
           </widget>
          </item>
          <item>
+          <widget class="QComboBox" name="userComboBox"/>
+         </item>
+         <item>
           <widget class="QPushButton" name="addTaskButton">
-           <property name="maximumSize">
-            <size>
-             <width>70</width>
-             <height>16777215</height>
-            </size>
-           </property>
            <property name="text">
-            <string>Add</string>
+            <string>add new task</string>
            </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
-        <widget class="QTableWidget" name="taskTable">
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLineEdit" name="userLine">
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="addUserButton">
+           <property name="text">
+            <string>add new user</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="mainTable">
          <property name="maximumSize">
           <size>
-           <width>200</width>
+           <width>16777215</width>
            <height>16777215</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
          <property name="editTriggers">
@@ -78,27 +121,43 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QTableWidget" name="taskDetailTable">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>300</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>60</height>
+          </size>
+         </property>
+        </widget>
+       </item>
       </layout>
-     </item>
-     <item>
-      <widget class="QTableWidget" name="taskDetailTable">
-       <property name="minimumSize">
-        <size>
-         <width>300</width>
-         <height>0</height>
-        </size>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>818</width>
      <height>22</height>
     </rect>
    </property>
@@ -109,7 +168,16 @@
    </widget>
    <addaction name="menumain"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actiontask">
+   <property name="text">
+    <string>task</string>
+   </property>
+  </action>
+  <action name="actionuser">
+   <property name="text">
+    <string>user</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
