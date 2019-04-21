@@ -10,14 +10,16 @@ def main():
 
     client.execute(''
                    'CREATE TABLE Task '
-                   '(name String, start_date String, duration Int32, assigned_users Array(String), creation_date Date) '
+                   '(name String, start_date String, duration Int32,'
+                   ' assigned_users Array(String), description String, progress Int32, creation_date Date) '
                    'ENGINE = MergeTree(creation_date, name, 8192)')
     client.execute(''
                    'CREATE TABLE User '
                    '(name String, creation_date Date) '
                    'ENGINE = MergeTree(creation_date, name, 8192)')
 
-    values = [[f'task {i}', str(datetime.today().date()), randint(1, 10), [], datetime.today().date()] for i in range(10)]
+    values = [[f'task {i}', str(datetime.today().date()), randint(1, 10), [], f'description of task {i}',
+               randint(0, 100), datetime.today().date()] for i in range(10)]
     users = [[f'default_user{i}', datetime.today().date()] for i in range(2)]
 
     client.execute('insert into Task values ', values)

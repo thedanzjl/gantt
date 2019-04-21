@@ -4,13 +4,15 @@ from datetime import datetime
 from PyQt5 import QtWidgets as Qt
 from PyQt5 import QtCore
 from PyQt5 import uic
+from PyQt5.QtGui import QColor
 
 from interface import *
 
 # attributes for Task table
 attributes = [
-    'name', 'start_date', 'duration', 'assigned_users', 'creation_date'
+    'name', 'start_date', 'duration', 'assigned_users', 'description', 'progress', 'creation_date'
 ]
+hidden_attrs = ['name', 'description']  # attributes that you want to hide from users (not show in display_meta)
 users_attributes = ['name', 'creation_date']
 
 
@@ -37,9 +39,11 @@ class GanttApp(Qt.QMainWindow):
         self.display()
         self.taskDetailTable.itemChanged.connect(self.edit_task_meta)
         self.mainTable.itemClicked.connect(self.display_meta)
-
+        self.saveDescButton.clicked.connect(self.save_task_desc)
         self.addUserButton.clicked.connect(self.add_user)
         self.userLine.returnPressed.connect(self.add_user)
+        self.taskDescriptionText.textChanged.connect(self.desc_changed)
+        self.saveDescButton.setStyleSheet("background-color: green")
 
     def display(self):
         """
@@ -70,18 +74,37 @@ class GanttApp(Qt.QMainWindow):
         values = self.tasks.get_by_name(item.text())
 
         self.taskDetailTable.setRowCount(1)
-        self.taskDetailTable.setColumnCount(len(attributes) - 1)
-        self.taskDetailTable.setHorizontalHeaderLabels(map(lambda x: x.replace("_", " "), attributes[1:]))
+        self.taskDetailTable.setColumnCount(len(attributes) - len(hidden_attrs))
+        self.taskDetailTable.horizontalHeader().setStretchLastSection(True)
 
-        for col in range(1, len(attributes)):
-            if attributes[col] in ['assigned_users']:
-                users = values[0][col]
-                item = Qt.QTableWidgetItem(' '.join(users))
+        attrs = zip(attributes, values[0])
+        actual_attrs = list()
+        description = ''
+        for item in attrs:
+            if item[0] == 'description':
+                description = item[1]
+            elif item[0] not in hidden_attrs:
+                actual_attrs.append(item)
+        self.taskDetailTable.setHorizontalHeaderLabels(map(lambda x: x[0].replace("_", " "), actual_attrs))
+
+        for col, (attr, value) in enumerate(actual_attrs):
+            if attr == 'assigned_users':
+                item = Qt.QTableWidgetItem(' '.join(value))
+                item.setToolTip('enter names of developers separated by space')
             else:
-                item = Qt.QTableWidgetItem(str(values[0][col]))
-            if attributes[col] in ['creation_date']:
-                item.setFlags(QtCore.Qt.ItemIsEditable)
-            self.taskDetailTable.setItem(0, col - 1, item)
+                item = Qt.QTableWidgetItem(str(value))
+                if attr == 'creation_date':
+                    item.setFlags(QtCore.Qt.ItemIsEditable)
+                elif attr == 'progress':
+                    item.setToolTip('progress of the task in percents')
+                elif attr == 'start_date':
+                    item.setToolTip('date of starting the task')
+                elif attr == 'duration':
+                    item.setToolTip('how many days required to accomplish the task')
+            self.taskDetailTable.setItem(0, col, item)
+
+        self.taskDescriptionText.setPlainText(description)
+        self.saveDescButton.setStyleSheet("background-color: green")
 
         self.lock = False
 
@@ -109,7 +132,8 @@ class GanttApp(Qt.QMainWindow):
         col = self.taskDetailTable.column(item)
         name = self.mainTable.selectedItems()[0].text()
         data = item.text()
-        if attributes[col + 1] == 'start_date':
+        actual_attrs = list(filter(lambda x: x not in hidden_attrs, attributes))
+        if actual_attrs[col] == 'start_date':
             try:
                 datetime.strptime(data, "%Y-%M-%d")
             except ValueError:
@@ -117,13 +141,13 @@ class GanttApp(Qt.QMainWindow):
                 previous_value = self.tasks.query(f"select start_date from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(previous_value))
                 return
-        if attributes[col + 1] == 'duration':
+        elif actual_attrs[col] == 'duration':
             if not data.isdigit():
                 Qt.QMessageBox.critical(self, 'Error', "Invalid int format")
                 previous_value = self.tasks.query(f"select duration from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
-        if attributes[col + 1] == 'assigned_users':
+        elif actual_attrs[col] == 'assigned_users':
             data = data.split()
             if len(data) != 0 and data[-1] not in [list(i)[0] for i in self.users.query('select name from User')]:
                 Qt.QMessageBox.critical(self, 'Error', "There is no such user")
@@ -137,9 +161,20 @@ class GanttApp(Qt.QMainWindow):
                 users = ' '.join(previous_value)
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(users))
                 return
+        elif actual_attrs[col] == 'progress':
+            if not data.isdigit():
+                Qt.QMessageBox.critical(self, 'Error', "Invalid int format")
+                previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
+                self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
+                return
+            if int(data) not in range(0, 101):
+                Qt.QMessageBox.critical(self, 'Error', "Progress should be in [0, 100] borders")
+                previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
+                self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
+                return
         if not isinstance(data, list) and not data.isdigit():
             data = f"'{data}'"
-        self.tasks.update_by_name(name, value_to_update=(attributes[col + 1], data))
+        self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
 
     def add_user(self):
         name = self.userLine.text()
@@ -151,6 +186,15 @@ class GanttApp(Qt.QMainWindow):
         self.lock = True
         self.mainTable.setItem(self.users.rows - 1, 1, item)
         self.lock = False
+
+    def save_task_desc(self):
+        desc = self.taskDescriptionText.toPlainText()
+        task_name = self.mainTable.selectedItems()[0].text()
+        self.tasks.update_by_name(task_name, ('description', f"'{desc}'"))
+        self.saveDescButton.setStyleSheet("background-color: green")
+
+    def desc_changed(self):
+        self.saveDescButton.setStyleSheet("background-color: red")
 
 
 if __name__ == '__main__':
