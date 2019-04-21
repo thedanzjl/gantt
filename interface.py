@@ -10,7 +10,7 @@ class Table:
     """
 
     def __init__(self, name, attributes):
-        self.client = Client(host='localhost')
+        self.client = Client(host='192.168.99.100')
         self.table_name = name
         self.rows = len(self.get_values())
         self.cols = len(attributes)
