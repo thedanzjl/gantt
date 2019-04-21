@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d67473dd-a0b4-405d-870d-28f3e5d279fd" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/gantt.ui" beforeDir="false" afterPath="$PROJECT_DIR$/gantt.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="d67473dd-a0b4-405d-870d-28f3e5d279fd" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,7 +12,7 @@
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/gantt$qt_window.coverage" NAME="qt_window Coverage Results" MODIFIED="1555519115852" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Projects/PythonProjects/dmd_fall18" />
     <SUITE FILE_PATH="coverage/gantt$create_db_samples.coverage" NAME="create_db_samples Coverage Results" MODIFIED="1555590088375" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/gantt$main.coverage" NAME="main Coverage Results" MODIFIED="1555595274289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/gantt$main.coverage" NAME="main Coverage Results" MODIFIED="1555603740825" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/gantt$interface.coverage" NAME="interface Coverage Results" MODIFIED="1555589630630" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
@@ -24,8 +20,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
-              <caret line="87" column="42" selection-start-line="87" selection-start-column="42" selection-end-line="87" selection-end-column="42" />
+            <state relative-caret-position="136">
+              <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
                 <element signature="e#146#221#0" />
@@ -298,13 +294,13 @@
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info id="DB Browser" />
       <window_info anchor="bottom" id="DB Execution Console" />
-      <window_info anchor="bottom" id="Event Log" sideWeight="0.50080776" side_tool="true" weight="0.21324718" />
+      <window_info anchor="bottom" id="Event Log" sideWeight="0.5016155" side_tool="true" weight="0.21324718" />
       <window_info anchor="right" x="0" y="0" width="270" height="516" id="Documentation" side_tool="true" weight="0.32956383" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49919224" visible="true" weight="0.20840065" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4983845" weight="0.20840065" />
       <window_info anchor="bottom" id="Version Control" />
       <window_info anchor="bottom" id="Python Console" weight="0.32956383" />
-      <window_info anchor="bottom" id="Terminal" sideWeight="0.49919224" weight="0.21324718" />
+      <window_info anchor="bottom" id="Terminal" sideWeight="0.4983845" weight="0.21324718" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17851374" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="right" id="Database" />
@@ -375,8 +371,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="87" column="42" selection-start-line="87" selection-start-column="42" selection-end-line="87" selection-end-column="42" />
+        <state relative-caret-position="136">
+          <caret line="8" column="12" selection-start-line="8" selection-start-column="12" selection-end-line="8" selection-end-column="12" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
             <element signature="e#146#221#0" />
