@@ -72,7 +72,7 @@ class GanttApp(Qt.QMainWindow):
 
     def add_task(self):
         name = self.taskLine.text()
-        self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today(),
+        self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
                        duration=1)
         self.taskTable.setRowCount(self.tasks.rows)
 
