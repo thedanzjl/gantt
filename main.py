@@ -9,7 +9,7 @@ from interface import *
 
 # attributes for Task table
 attributes = [
-    'name', 'start_date', 'duration', 'assigned_user', 'creation_date'
+    'name', 'start_date', 'duration', 'assigned_users', 'creation_date'
 ]
 users_attributes = ['name', 'creation_date']
 
@@ -71,10 +71,10 @@ class GanttApp(Qt.QMainWindow):
 
         self.taskDetailTable.setRowCount(1)
         self.taskDetailTable.setColumnCount(len(attributes) - 1)
-        self.taskDetailTable.setHorizontalHeaderLabels(attributes[1:])
+        self.taskDetailTable.setHorizontalHeaderLabels(map(lambda x: x.replace("_", " "), attributes[1:]))
 
         for col in range(1, len(attributes)):
-            if attributes[col] in ['assigned_user']:
+            if attributes[col] in ['assigned_users']:
                 users = values[0][col]
                 item = Qt.QTableWidgetItem(' '.join(users))
             else:
@@ -88,13 +88,12 @@ class GanttApp(Qt.QMainWindow):
     def add_task(self):
         name = self.taskLine.text()
         name = name.replace("'", '')
-        # assigned_users = self.tasks.query(f"select assigned_user from Task where name = '{name}'")
         if self.userComboBox.currentText() == 'None':
             assigned_users = []
         else:
             assigned_users = [self.userComboBox.currentText()]
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
-                       duration=1, assigned_user=assigned_users)
+                       duration=1, assigned_users=assigned_users)
 
         self.mainTable.setRowCount(self.tasks.rows)
 
@@ -103,7 +102,7 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setItem(self.tasks.rows - 1, 0, item)
         self.lock = False
 
-    def edit_task_meta(self, item):  # Print spaces between names of users to edit assigned_user field
+    def edit_task_meta(self, item):  # Print spaces between names of users to edit assigned_users field
         if self.lock:
             return
         row = self.taskDetailTable.row(item)
@@ -124,17 +123,17 @@ class GanttApp(Qt.QMainWindow):
                 previous_value = self.tasks.query(f"select duration from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
-        if attributes[col + 1] == 'assigned_user':
+        if attributes[col + 1] == 'assigned_users':
             data = data.split()
             if len(data) != 0 and data[-1] not in [list(i)[0] for i in self.users.query('select name from User')]:
                 Qt.QMessageBox.critical(self, 'Error', "There is no such user")
-                previous_value = self.tasks.query(f"select assigned_user from Task where name = '{name}'")[0][0]
+                previous_value = self.tasks.query(f"select assigned_users from Task where name = '{name}'")[0][0]
                 users = ' '.join(previous_value)
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(users))
                 return
             if len(data) != 0 and data[-1] in data[:-1]:
                 Qt.QMessageBox.critical(self, 'Error', "You've already assigned the user")
-                previous_value = self.tasks.query(f"select assigned_user from Task where name = '{name}'")[0][0]
+                previous_value = self.tasks.query(f"select assigned_users from Task where name = '{name}'")[0][0]
                 users = ' '.join(previous_value)
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(users))
                 return

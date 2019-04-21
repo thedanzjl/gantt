@@ -10,7 +10,7 @@ def main():
 
     client.execute(''
                    'CREATE TABLE Task '
-                   '(name String, start_date String, duration Int32, assigned_user Array(String), creation_date Date) '
+                   '(name String, start_date String, duration Int32, assigned_users Array(String), creation_date Date) '
                    'ENGINE = MergeTree(creation_date, name, 8192)')
     client.execute(''
                    'CREATE TABLE User '
