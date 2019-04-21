@@ -94,6 +94,7 @@ class GanttApp(Qt.QMainWindow):
         assigned_users.append(self.userComboBox.currentText())
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
                        duration=1, assigned_user=assigned_users)
+
         self.taskTable.setRowCount(self.tasks.rows)
 
         item = Qt.QTableWidgetItem(name)
