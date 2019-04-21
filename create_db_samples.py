@@ -4,7 +4,7 @@ from random import randint
 
 
 def main():
-    client = Client(host='192.168.99.100')
+    client = Client(host='localhost')
     client.execute('DROP TABLE IF EXISTS Task')
     client.execute('DROP TABLE IF EXISTS User')
 

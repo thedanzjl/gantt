@@ -21,7 +21,7 @@ class GanttApp(Qt.QMainWindow):
 
     def __init__(self, name):
         super().__init__()
-        self.client = Client(host='192.168.99.100')
+        self.client = Client(host='localhost')
         self.setWindowTitle(name)
         self.init_ui()
 
