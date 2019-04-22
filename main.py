@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from PyQt5 import QtWidgets as Qt
 from PyQt5 import QtCore
@@ -45,13 +45,44 @@ class GanttApp(Qt.QMainWindow):
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
         self.saveDescButton.setStyleSheet("background-color: green")
         self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
-        self.tableWidget.setColumnCount(16)                                   # HERE SHOULD BE THE NUMBER OF COLUMNS для Маши
+        minimalDate = self.tasks.query('select min(start_date) from Task')
+        minimalDate = minimalDate[0][0]
+        minimumDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
+        finishDates = []
+        tempFinishDates = []
+        temp = self.tasks.query('select start_date, duration from Task')
+        ind = 0
+        for i in temp:
+            dat = i[0]
+            year = dat[:4]
+            month = dat[6:7]
+            day = dat[-2:]
+            dateTemp = month + '/' + day + '/' + year
+            d = datetime.strptime(dateTemp, '%m/%d/%Y') + timedelta(int(i[1]), 0, 0)
+            tempFinishDates.append(d)
+            finishDates.append(d.strftime('%m/%d/%Y'))
+        maximumDeltaTime = minimumDateObj - tempFinishDates[-1]
+        for i in range (len(tempFinishDates)):
+            if ((tempFinishDates[i] - minimumDateObj) > maximumDeltaTime):
+                maximumDeltaTime = tempFinishDates[i] - minimumDateObj
+                ind = i
+        tteemmpp = str(maximumDeltaTime)
+        while (tteemmpp[-1]!='d'):
+            tteemmpp = tteemmpp[:-2]
+        tteemmpp = tteemmpp[:-2]
+        numOfColumns = int(tteemmpp)
+        self.tableWidget.setColumnCount(numOfColumns)
         taskNames = self.users.query('select name from Task')
         rowNames = []
         for i in taskNames:
             rowNames.append(i[0])
         self.tableWidget.setVerticalHeaderLabels(rowNames)
-        columnNames = ['Column1', 'Column2', 'Column3']                       # SAMPLE ARRAY OF NAMES FOR COLUMNS для Маши
+        columnNames = [minimumDateObj.strftime('%m/%d/%Y')]
+        currDateObj = minimumDateObj
+        qq = 0
+        while (tempFinishDates[ind] != currDateObj):
+            currDateObj = currDateObj + timedelta(days=1)
+            columnNames.append(currDateObj.strftime('%m/%d/%Y'))
         self.tableWidget.setHorizontalHeaderLabels(columnNames)
 
     def display(self):
