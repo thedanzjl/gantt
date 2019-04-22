@@ -1,5 +1,4 @@
 from clickhouse_driver import Client
-from datetime import datetime
 
 
 class Table:
@@ -16,7 +15,7 @@ class Table:
         self.cols = len(attributes)
 
     def get_values(self):
-        return self.client.execute(f'select * from {self.table_name}')
+        return self.client.execute(f'select * from {self.table_name} order by name')
 
     def get_by_name(self, name):
         return self.client.execute(f"select * from {self.table_name} where name='{name}'")
