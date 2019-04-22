@@ -1,11 +1,12 @@
 import sys
+from datetime import datetime
 
 from PyQt5 import QtWidgets as Qt
 from PyQt5 import QtCore
 from PyQt5 import uic
+from PyQt5.QtGui import QColor
 
 from interface import *
-
 
 # attributes for Task table
 attributes = [
@@ -43,11 +44,19 @@ class GanttApp(Qt.QMainWindow):
         self.userLine.returnPressed.connect(self.add_user)
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
         self.saveDescButton.setStyleSheet("background-color: green")
-        self.deleteTaskButton.clicked.connect(self.delete_task)
+        self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
+        self.tableWidget.setColumnCount(16)                                   # HERE SHOULD BE THE NUMBER OF COLUMNS для Маши
+        taskNames = self.users.query('select name from Task')
+        rowNames = []
+        for i in taskNames:
+            rowNames.append(i[0])
+        self.tableWidget.setVerticalHeaderLabels(rowNames)
+        columnNames = ['Column1', 'Column2', 'Column3']                       # SAMPLE ARRAY OF NAMES FOR COLUMNS для Маши
+        self.tableWidget.setHorizontalHeaderLabels(columnNames)
 
     def display(self):
         """
-        displays tasks and users in mainTable.
+        displays tasks and users in mainTable
         """
         task_names = self.tasks.get_values()
         user_names = self.users.get_values()
@@ -65,17 +74,11 @@ class GanttApp(Qt.QMainWindow):
             user_item = Qt.QTableWidgetItem(user_names[row][0])
             self.mainTable.setItem(row, 1, user_item)
 
-        # display GSPlot
-
-        # display Timeline
-
     def display_meta(self, item):
         self.lock = True
         if item.column() == 1:  # user name column clicked
             self.lock = False
             return
-
-        self.deleteTaskButton.setEnabled(True)
 
         values = self.tasks.get_by_name(item.text())
 
@@ -86,14 +89,11 @@ class GanttApp(Qt.QMainWindow):
         attrs = zip(attributes, values[0])
         actual_attrs = list()
         description = ''
-        progress = 0
         for item in attrs:
             if item[0] == 'description':
                 description = item[1]
             elif item[0] not in hidden_attrs:
                 actual_attrs.append(item)
-            if item[0] == 'progress':
-                progress = item[1]
         self.taskDetailTable.setHorizontalHeaderLabels(map(lambda x: x[0].replace("_", " "), actual_attrs))
 
         for col, (attr, value) in enumerate(actual_attrs):
@@ -113,7 +113,6 @@ class GanttApp(Qt.QMainWindow):
             self.taskDetailTable.setItem(0, col, item)
 
         self.taskDescriptionText.setPlainText(description)
-        self.taskProgressBar.setValue(progress)
         self.saveDescButton.setStyleSheet("background-color: green")
 
         self.lock = False
@@ -126,7 +125,7 @@ class GanttApp(Qt.QMainWindow):
         else:
             assigned_users = [self.userComboBox.currentText()]
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
-                       duration=1, assigned_users=assigned_users, description='', progress=0)
+                       duration=1, assigned_users=assigned_users)
 
         self.mainTable.setRowCount(self.tasks.rows)
 
@@ -182,7 +181,6 @@ class GanttApp(Qt.QMainWindow):
                 previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
-            self.taskProgressBar.setValue(int(data))
         if not isinstance(data, list) and not data.isdigit():
             data = f"'{data}'"
         self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
@@ -206,15 +204,6 @@ class GanttApp(Qt.QMainWindow):
 
     def desc_changed(self):
         self.saveDescButton.setStyleSheet("background-color: red")
-
-    def delete_task(self):
-        task_item = self.mainTable.selectedItems()[0]
-        task_name = task_item.text()
-        task_row = task_item.row()
-        answ = Qt.QMessageBox.question(self, 'Delete task', f'You sure you want to delete {task_name}')
-        if answ == Qt.QMessageBox.Yes:
-            self.tasks.delete_by_name(task_name)
-            self.mainTable.removeRow(task_row)
 
 
 if __name__ == '__main__':
