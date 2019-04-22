@@ -24,12 +24,34 @@
     <property name="geometry">
      <rect>
       <x>11</x>
-      <y>33</y>
-      <width>461</width>
-      <height>471</height>
+      <y>63</y>
+      <width>801</width>
+      <height>441</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="mainLayout">
+     <item>
+      <widget class="QTableWidget" name="mainTable">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::AnyKeyPressed</set>
+       </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_4">
        <property name="sizeConstraint">
@@ -43,6 +65,19 @@
        </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item>
           <widget class="QLineEdit" name="taskLine">
            <property name="maximumSize">
@@ -63,8 +98,12 @@
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <spacer name="horizontalSpacer_4">
+          <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -76,10 +115,6 @@
            </property>
           </spacer>
          </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
           <widget class="QLineEdit" name="userLine">
            <property name="maximumSize">
@@ -97,42 +132,7 @@
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QTableWidget" name="mainTable">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="baseSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="editTriggers">
-          <set>QAbstractItemView::AnyKeyPressed</set>
-         </property>
-         <property name="sortingEnabled">
-          <bool>false</bool>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QTableWidget" name="taskDetailTable">
@@ -156,6 +156,13 @@
            <width>16777215</width>
            <height>60</height>
           </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="taskProgressBar">
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
