@@ -85,6 +85,9 @@ class GanttApp(Qt.QMainWindow):
             columnNames.append(currDateObj.strftime('%m/%d/%Y'))
         self.tableWidget.setHorizontalHeaderLabels(columnNames)
 
+        self.searchButton.clicked.connect(self.search)
+        self.taskSearch.returnPressed.connect(self.search)
+
     def display(self):
         """
         displays tasks and users in mainTable
@@ -235,6 +238,24 @@ class GanttApp(Qt.QMainWindow):
 
     def desc_changed(self):
         self.saveDescButton.setStyleSheet("background-color: red")
+
+    def search(self):
+        self.mainTable.clearContents()
+        search_query = self.taskSearch.text()
+        if len(search_query) != 0:
+            result_task = self.tasks.query('select name from Task where like(name, \'%' + search_query + '%\')')
+        else:
+            result_task = self.tasks.get_values()
+
+        self.mainTable.setRowCount(len(result_task))
+        self.mainTable.setColumnCount(2)
+        self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
+        self.mainTable.horizontalHeader().setStretchLastSection(True)
+
+        for row in range(len(result_task)):
+            task_item = Qt.QTableWidgetItem(result_task[row][0])
+            self.mainTable.setItem(row, 0, task_item)
+
 
 
 if __name__ == '__main__':
