@@ -1,10 +1,9 @@
 import sys
-from datetime import datetime
+
 
 from PyQt5 import QtWidgets as Qt
 from PyQt5 import QtCore
 from PyQt5 import uic
-from PyQt5.QtGui import QColor
 
 from interface import *
 
@@ -45,6 +44,8 @@ class GanttApp(Qt.QMainWindow):
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
         self.saveDescButton.setStyleSheet("background-color: green")
 
+        self.deleteTaskButton.clicked.connect(self.delete_task)
+
     def display(self):
         """
         displays tasks and users in mainTable
@@ -70,6 +71,8 @@ class GanttApp(Qt.QMainWindow):
         if item.column() == 1:  # user name column clicked
             self.lock = False
             return
+
+        self.deleteTaskButton.setEnabled(True)
 
         values = self.tasks.get_by_name(item.text())
 
@@ -116,7 +119,7 @@ class GanttApp(Qt.QMainWindow):
         else:
             assigned_users = [self.userComboBox.currentText()]
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
-                       duration=1, assigned_users=assigned_users)
+                       duration=1, assigned_users=assigned_users, description='', progress=0)
 
         self.mainTable.setRowCount(self.tasks.rows)
 
@@ -195,6 +198,15 @@ class GanttApp(Qt.QMainWindow):
 
     def desc_changed(self):
         self.saveDescButton.setStyleSheet("background-color: red")
+
+    def delete_task(self):
+        task_item = self.mainTable.selectedItems()[0]
+        task_name = task_item.text()
+        task_row = task_item.row()
+        answ = Qt.QMessageBox.question(self, 'Delete task', f'You sure you want to delete {task_name}')
+        if answ == Qt.QMessageBox.Yes:
+            self.tasks.delete_by_name(task_name)
+            self.mainTable.removeRow(task_row)
 
 
 if __name__ == '__main__':

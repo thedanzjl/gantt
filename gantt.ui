@@ -213,6 +213,29 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QCommandLinkButton" name="deleteTaskButton">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="cursor">
+          <cursorShape>ArrowCursor</cursorShape>
+         </property>
+         <property name="toolTip">
+          <string>delete selected task</string>
+         </property>
+         <property name="text">
+          <string>delete the task</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>delete_icon2.png</normaloff>delete_icon2.png</iconset>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
