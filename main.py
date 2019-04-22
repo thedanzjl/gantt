@@ -22,7 +22,7 @@ class GanttApp(Qt.QMainWindow):
 
     def __init__(self, name):
         super().__init__()
-        self.client = Client(host='localhost')
+        self.client = Client(host='192.168.99.100')
         self.setWindowTitle(name)
         self.init_ui()
 
@@ -44,6 +44,8 @@ class GanttApp(Qt.QMainWindow):
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
         self.saveDescButton.setStyleSheet("background-color: green")
         self.deleteTaskButton.clicked.connect(self.delete_task)
+        self.searchButton.clicked.connect(self.search)
+        self.taskSearch.returnPressed.connect(self.search)
 
     def display(self):
         """
@@ -215,6 +217,31 @@ class GanttApp(Qt.QMainWindow):
         if answ == Qt.QMessageBox.Yes:
             self.tasks.delete_by_name(task_name)
             self.mainTable.removeRow(task_row)
+
+    def search(self):
+        self.mainTable.clearContents()
+        search_query = self.taskSearch.text()
+        if len(search_query) != 0:
+            result_task = self.tasks.query('select name from Task where like(name, \'%' + search_query + '%\')')
+            result_user = self.tasks.query('select name from User where like(name, \'%' + search_query + '%\')')
+        else:
+            result_task = self.tasks.get_values()
+            result_user = self.users.get_values()
+
+        self.mainTable.setRowCount(max(len(result_task), len(result_user)))
+        self.mainTable.setColumnCount(2)
+        self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
+        self.mainTable.horizontalHeader().setStretchLastSection(True)
+
+        for row in range(len(result_task)):
+            task_item = Qt.QTableWidgetItem(result_task[row][0])
+            self.mainTable.setItem(row, 0, task_item)
+
+        for row in range(len(result_user)):
+            user_item = Qt.QTableWidgetItem(result_user[row][0])
+            self.mainTable.setItem(row, 1, user_item)
+
+
 
 
 if __name__ == '__main__':
