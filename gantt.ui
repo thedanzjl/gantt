@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>818</width>
+    <width>1319</width>
     <height>560</height>
    </rect>
   </property>
@@ -24,25 +24,94 @@
     <property name="geometry">
      <rect>
       <x>11</x>
-      <y>49</y>
-      <width>791</width>
-      <height>511</height>
+      <y>33</y>
+      <width>461</width>
+      <height>471</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="mainLayout">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <widget class="QGraphicsView" name="graphicsView"/>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMaximumSize</enum>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <widget class="QLineEdit" name="taskSearch"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="searchButton">
-           <property name="text">
-            <string>Search</string>
+          <widget class="QLineEdit" name="taskLine">
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
            </property>
           </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="userComboBox"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="addTaskButton">
+           <property name="text">
+            <string>add new task</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLineEdit" name="userLine">
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="addUserButton">
+           <property name="text">
+            <string>add new user</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
         </layout>
        </item>
@@ -68,90 +137,6 @@
          </property>
         </widget>
        </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMaximumSize</enum>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <spacer name="horizontalSpacer_4">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="taskLine">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="userComboBox"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addTaskButton">
-           <property name="text">
-            <string>add new task</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="userLine">
-           <property name="maximumSize">
-            <size>
-             <width>100</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="addUserButton">
-           <property name="text">
-            <string>add new user</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item>
         <widget class="QTableWidget" name="taskDetailTable">
          <property name="enabled">
@@ -174,13 +159,6 @@
            <width>16777215</width>
            <height>60</height>
           </size>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QProgressBar" name="taskProgressBar">
-         <property name="value">
-          <number>0</number>
          </property>
         </widget>
        </item>
@@ -238,32 +216,19 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QCommandLinkButton" name="deleteTaskButton">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="cursor">
-          <cursorShape>ArrowCursor</cursorShape>
-         </property>
-         <property name="toolTip">
-          <string>delete selected task</string>
-         </property>
-         <property name="text">
-          <string>delete the task</string>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>delete_icon2.png</normaloff>delete_icon2.png</iconset>
-         </property>
-         <property name="checkable">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>30</y>
+      <width>791</width>
+      <height>471</height>
+     </rect>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -272,8 +237,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>818</width>
-     <height>22</height>
+     <width>1319</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menumain">
