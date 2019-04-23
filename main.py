@@ -43,7 +43,7 @@ class GanttApp(Qt.QMainWindow):
         self.taskLine.returnPressed.connect(self.add_task)
         self.display()
         self.taskDetailTable.itemChanged.connect(self.edit_task_meta)
-        self.mainTable.itemClicked.connect(self.display_meta)
+        self.mainTable.cellClicked.connect(self.display_meta)
         self.saveDescButton.clicked.connect(self.save_task_desc)
         self.addUserButton.clicked.connect(self.add_user)
         self.userLine.returnPressed.connect(self.add_user)
@@ -54,14 +54,16 @@ class GanttApp(Qt.QMainWindow):
         self.taskSearch.returnPressed.connect(self.search)
         self.GSBox.stateChanged.connect(self.GS_turned)
         self.GSTopNspinBox.valueChanged.connect(self.GS)
+        self.timelineTable.verticalHeader().setStretchLastSection(True)
+        self.timelineTable.horizontalHeader().setStretchLastSection(True)
 
         self.timeline(self.tasks)
 
-    def timeline(self, table):
+    def timeline(self, table, label_content=''):
         self.timelineTable.clearContents()
-        minimalDate = Table.query(f'select min(start_date) from {table.table_name}')
-        minimalDate = minimalDate[0][0]
-        minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
+        min_date = Table.query(f'select min(start_date) from {table.table_name}')
+        min_date = min_date[0][0]
+        min_dateObj = datetime.strptime(min_date, '%Y-%m-%d')
         finish_dates = []
         task_dates = Table.query(f'select start_date, duration from {table.table_name} order by start_date')  # start date with durations
 
@@ -72,7 +74,8 @@ class GanttApp(Qt.QMainWindow):
 
         max_duration = Table.query(f'select max(duration) from {table.table_name}')[0][0]
         max_date = Table.query(f'select max(start_date) from {table.table_name}')[0][0]
-        max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - minimalDateObj).days
+        self.timelineLabel.setText(f'Timeline [{min_date.replace("-", "/")} - {max_date.replace("-", "/")}]. ' + label_content)
+        max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - min_dateObj).days
         max_duration += max_days_after_start - 1
 
         task_names = Table.query(f'select name from {table.table_name} order by start_date')
@@ -82,9 +85,9 @@ class GanttApp(Qt.QMainWindow):
 
         self.timelineTable.setVerticalHeaderLabels(task_names)
 
-        column_names = [minimalDate]
+        column_names = [min_date]
         for i in range(1, max_duration):
-            next_date = str((minimalDateObj + timedelta(days=i)).date())
+            next_date = str((min_dateObj + timedelta(days=i)).date())
             column_names.append(next_date)
         num_cols = len(column_names)
         self.timelineTable.setColumnCount(num_cols)
@@ -93,30 +96,55 @@ class GanttApp(Qt.QMainWindow):
         for i, task in enumerate(task_dates):
             start_date, duration = task
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            days_after_start = (start_date - minimalDateObj).days
+            days_after_start = (start_date - min_dateObj).days
             for day in range(duration):
                 task_item = Qt.QTableWidgetItem('')
                 task_item.setBackground(QColor(200, 0, 200))
                 self.timelineTable.setItem(i, days_after_start + day, task_item)
 
+    def update_timeline(self):
+        if self.GSBox.checkState() > 0:  # GS mode activated
+            top_closest = self.GSTopNspinBox.value()
+            current_task_name = self.mainTable.selectedItems()[0].text()
+            current_task = self.tasks.get_by_name(current_task_name)
+            gs_search(current_task, top_closest)
+            result_task_table = Table('ResultTask', attributes=['name', 'start_date', 'duration'])
+            self.timeline(
+                table=result_task_table,
+                label_content=f'Geospatial Search for task: "{current_task_name}". Top {top_closest} closest. ')
+        else:  # GS mode deactivated
+            self.timeline(table=self.tasks)
+
     def display(self):
         """
         displays tasks and users in mainTable
         """
-        task_names = self.tasks.get_values()
-        num_tasks = len(task_names)
+        task_values = self.tasks.get_values()
+        num_tasks = len(task_values)
         self.GSTopNspinBox.setMaximum(num_tasks)
 
-        self.mainTable.setRowCount(len(task_names))
+        self.mainTable.setRowCount(len(task_values))
         self.mainTable.setColumnCount(1)
         self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
+        self.mainTable.verticalHeader().setStretchLastSection(True)
+        self.mainTable.verticalHeader().setDefaultSectionSize(57)
 
-        for row in range(len(task_names)):
-            task_item = Qt.QTableWidgetItem(task_names[row][0])
-            self.mainTable.setItem(row, 0, task_item)
+        progress_i = attributes.index('progress')
 
-    def display_meta(self, item):
+        for row in range(num_tasks):
+            task = task_values[row]
+            task_widget = Qt.QWidget()
+            layout = Qt.QVBoxLayout()
+            pgbar = Qt.QProgressBar()
+            pgbar.setValue(task[progress_i])
+            layout.addWidget(Qt.QLabel(task[0]))
+            layout.addWidget(pgbar)
+
+            task_widget.setLayout(layout)
+            self.mainTable.setCellWidget(row, 0, task_widget)
+
+    def display_meta(self):
         self.lock = True
 
         self.deleteTaskButton.setEnabled(True)
@@ -124,7 +152,9 @@ class GanttApp(Qt.QMainWindow):
         self.saveDescButton.setEnabled(True)
         self.GSBox.setEnabled(True)
 
-        values = self.tasks.get_by_name(item.text())
+        task_name = self.get_current_task_name()
+
+        values = self.tasks.get_by_name(task_name)
 
         self.taskDetailTable.setRowCount(1)
         self.taskDetailTable.setColumnCount(len(attributes) - len(hidden_attrs))
@@ -177,12 +207,21 @@ class GanttApp(Qt.QMainWindow):
 
         self.mainTable.setRowCount(self.tasks.rows)
 
-        item = Qt.QTableWidgetItem(name)
+        task_widget = Qt.QWidget()
+        layout = Qt.QVBoxLayout()
+        pgbar = Qt.QProgressBar()
+        pgbar.setValue(0)
+        layout.addWidget(Qt.QLabel(name))
+        layout.addWidget(pgbar)
+        task_widget.setLayout(layout)
         self.lock = True
-        self.mainTable.setItem(self.tasks.rows - 1, 0, item)
+        self.mainTable.setCellWidget(self.tasks.rows - 1, 0, task_widget)
         self.lock = False
+
         self.taskLine.setText('')  # clear textline
-        self.mainTable.setCurrentItem(item, QtCore.QItemSelectionModel.Select)
+        self.mainTable.setCurrentCell(self.tasks.rows - 1, 0)
+
+        self.update_timeline()
 
     def edit_task_meta(self, item):  # Print spaces between names of users to edit assigned_users field
         if self.lock:
@@ -236,6 +275,8 @@ class GanttApp(Qt.QMainWindow):
             data = f"'{data}'"
         self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
 
+        self.update_timeline()
+
     def add_user(self):
         name = self.userLine.text()
         name = name.replace(' ', '_')
@@ -256,7 +297,7 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.clearContents()
         search_query = self.taskSearch.text()
         if len(search_query) != 0:
-            result_task = Table.query('select name from Task where like(name, \'%' + search_query + '%\')')
+            result_task = Table.query('select name, progress from Task where like(name, \'%' + search_query + '%\')')
         else:
             result_task = self.tasks.get_values()
 
@@ -267,33 +308,52 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.verticalHeader().setStretchLastSection(True)
 
         for row in range(len(result_task)):
-            task_item = Qt.QTableWidgetItem(result_task[row][0])
-            self.mainTable.setItem(row, 0, task_item)
+            task_widget = Qt.QWidget()
+            layout = Qt.QVBoxLayout()
+            pgbar = Qt.QProgressBar()
+            pgbar.setValue(result_task[row][1])
+            layout.addWidget(Qt.QLabel(result_task[row][0]))
+            layout.addWidget(pgbar)
+
+            task_widget.setLayout(layout)
+            self.mainTable.setCellWidget(row, 0, task_widget)
+
+    def get_current_task_name(self):
+        row, col = self.mainTable.currentRow(), self.mainTable.currentColumn()
+        item = self.mainTable.cellWidget(row, col)
+        item_layout = item.layout()
+        item_widget = item_layout.itemAt(0).widget()
+        item_name = item_widget.text()
+        return item_name
 
     def delete_task(self):
-        task_item = self.mainTable.selectedItems()[0]
-        task_name = task_item.text()
-        task_row = task_item.row()
+        task_name = self.get_current_task_name()
+        task_row = self.mainTable.currentRow()
         answ = Qt.QMessageBox.question(self, 'Delete task', f'You sure you want to delete {task_name}')
         if answ == Qt.QMessageBox.Yes:
             self.tasks.delete_by_name(task_name)
             self.mainTable.removeRow(task_row)
+        self.update_timeline()
 
     def GS_turned(self, state):
         """
         :param state: state of checkbox GSBox. if activated state > 0, otherwise 0
         """
-        self.GSTopNspinBox.setEnabled(True)
+        self.GSTopNspinBox.setEnabled(state > 0)
+        if state == 0:
+            self.timeline(self.tasks)
+        else:
+            if self.GSTopNspinBox.value():
+                self.update_timeline()
 
-    def GS(self, value):
+    def GS(self, top_closest):
         current_task_name = self.mainTable.selectedItems()[0].text()
         current_task = self.tasks.get_by_name(current_task_name)
-        gs_search(current_task, value)
+        gs_search(current_task, top_closest)
 
         result_tasks_table = Table("ResultTask", attributes=['name', 'start_date', 'duration'])
-        print(self.tasks.get_values())
-        print(Table.query('select * from ResultTask'))
-        self.timeline(result_tasks_table)
+        self.timeline(result_tasks_table,
+                      label_content=f'Geospatial Search for task: "{current_task_name}". Top {top_closest} closest. ')
 
 
 if __name__ == '__main__':
