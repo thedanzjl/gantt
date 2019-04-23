@@ -1,27 +1,37 @@
-# Gantt chart
+# Gantt Chart
 
 BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
 
 ## Technical details
 ### Database organization
-![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/23/6b1beb5cbab0646dfe03aec82954f1da-full.jpg)
+![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/23/165ebb586577dde3d22f7e22c49cdddd-full.jpg)
 
 The presented model diagram shows the structure of the project's database.
 It consists of:
 * <b>Task</b>: the main part from which the Gantt chart is created. Values like name, description and assigned a user or multiple users specify the particular task; start date, duration and task progress are needed to display the Gantt chart according to its main functionality. 
 * <b>User</b>: consist of user's name which can be assigned to one or more tasks.
-* <b>Dependency</b>: implements another important functionality of the Gantt chart. Beginning of one task can be dependent on another task ends. Dependency entity collects such relationships (task_in for the task which is dependent on the task in task_out).
 * <b>Score</b>: created for geospatial search queries. The table can be created for every task (suppose some initial task) and collects the values like name of some task in the database (let call it database task), database task's start date and score (the difference between the start date of initial task and database task). More details about it in the geospatial search section.
 
 All entities save creation date which is necessary according to requirements of MergeTree engine in ClickHouse. 
 
 ### Geospatial search
+1. Is used for getting k nearest Task records for specific task. 
+2. Distance is the Euclidian distance where x is start_date and y is duration
+```
+#pseudocode
+ def distance(task1, task2):
+        # duration and start_date
+        # sum of squared differences
+        a = task1.start_date - task2.start_date
+        b = task1.duration - task2.duration
+        return sqrt(a**2 + b**2)
+```
 
 ## Utilization of the project
 
 ### Install dependencies
 
-1. You'll need docker to run clickhouse. So, first of all, install docker.
+1. You'll need docker to run СlickHouse. So, first of all, install Docker.
 2. Then, create a container of the clickhouse (<a href="https://hub.docker.com/r/yandex/clickhouse-server/">more</a>): 
   
       <code> $ mkdir $HOME/gantt_clickhouse_db</code>  - creates volume for storing data<br>
