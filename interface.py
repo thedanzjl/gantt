@@ -8,8 +8,10 @@ class Table:
     Before use, make sure that docker container is running (more in README.md).
     """
 
+    client = Client(host='localhost')
+
     def __init__(self, name, attributes):
-        self.client = Client(host='localhost')
+
         self.table_name = name
         self.rows = len(self.get_values())
         self.cols = len(attributes)
@@ -35,8 +37,9 @@ class Table:
                             f"update {value_to_update[0]} = {value_to_update[1]} "
                             f"where name = '{name}'")
 
-    def query(self, text):
-        return self.client.execute(text)
+    @staticmethod
+    def query(text):
+        return Table.client.execute(text)
 
     def add(self, **values):
         self.client.execute(f'insert into {self.table_name} values', [values])

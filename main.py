@@ -38,7 +38,7 @@ class GanttApp(Qt.QMainWindow):
         """
         uic.loadUi('gantt.ui', self)
         self.userComboBox.addItem('None')
-        self.userComboBox.addItems([list(i)[0] for i in self.users.query('select name from User')])
+        self.userComboBox.addItems([list(i)[0] for i in Table.query('select name from User')])
         self.addTaskButton.clicked.connect(self.add_task)
         self.taskLine.returnPressed.connect(self.add_task)
         self.display()
@@ -50,7 +50,6 @@ class GanttApp(Qt.QMainWindow):
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
         self.deleteTaskButton.clicked.connect(self.delete_task)
         self.saveDescButton.setStyleSheet("background-color: green")
-        self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
         self.searchButton.clicked.connect(self.search)
         self.taskSearch.returnPressed.connect(self.search)
         self.GSBox.stateChanged.connect(self.GS_turned)
@@ -60,23 +59,25 @@ class GanttApp(Qt.QMainWindow):
 
     def timeline(self, table):
         self.tableWidget.clearContents()
-        minimalDate = self.tasks.query(f'select min(start_date) from {table.table_name}')
+        minimalDate = Table.query(f'select min(start_date) from {table.table_name}')
         minimalDate = minimalDate[0][0]
         minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
         finish_dates = []
-        task_dates = self.tasks.query(f'select start_date, duration from {table.table_name} order by start_date')  # start date with durations
+        task_dates = Table.query(f'select start_date, duration from {table.table_name} order by start_date')  # start date with durations
 
         for task_date in task_dates:
             dat, duration = task_date
             finish = datetime.strptime(dat, '%Y-%m-%d') + timedelta(int(duration), 0, 0)
             finish_dates.append(finish)
 
-        max_duration = self.tasks.query(f'select max(duration) from {table.table_name}')[0][0]
-        max_date = self.tasks.query(f'select max(start_date) from {table.table_name}')[0][0]
+        max_duration = Table.query(f'select max(duration) from {table.table_name}')[0][0]
+        max_date = Table.query(f'select max(start_date) from {table.table_name}')[0][0]
         max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - minimalDateObj).days
         max_duration += max_days_after_start - 1
 
-        task_names = self.tasks.query(f'select name from {table.table_name} order by start_date')
+        task_names = Table.query(f'select name from {table.table_name} order by start_date')
+        self.tableWidget.setRowCount(len(task_names))
+
         task_names = map(lambda x: x[0], task_names)
 
         self.tableWidget.setVerticalHeaderLabels(task_names)
@@ -196,38 +197,38 @@ class GanttApp(Qt.QMainWindow):
                 datetime.strptime(data, "%Y-%M-%d")
             except ValueError:
                 Qt.QMessageBox.critical(self, 'Error', "Invalid date format")
-                previous_value = self.tasks.query(f"select start_date from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select start_date from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(previous_value))
                 return
         elif actual_attrs[col] == 'duration':
             if not data.isdigit():
                 Qt.QMessageBox.critical(self, 'Error', "Invalid int format")
-                previous_value = self.tasks.query(f"select duration from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select duration from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
         elif actual_attrs[col] == 'assigned_users':
             data = data.split()
-            if len(data) != 0 and data[-1] not in [list(i)[0] for i in self.users.query('select name from User')]:
+            if len(data) != 0 and data[-1] not in [list(i)[0] for i in Table.query('select name from User')]:
                 Qt.QMessageBox.critical(self, 'Error', "There is no such user")
-                previous_value = self.tasks.query(f"select assigned_users from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select assigned_users from Task where name = '{name}'")[0][0]
                 users = ' '.join(previous_value)
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(users))
                 return
             if len(data) != 0 and data[-1] in data[:-1]:
                 Qt.QMessageBox.critical(self, 'Error', "You've already assigned the user")
-                previous_value = self.tasks.query(f"select assigned_users from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select assigned_users from Task where name = '{name}'")[0][0]
                 users = ' '.join(previous_value)
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(users))
                 return
         elif actual_attrs[col] == 'progress':
             if not data.isdigit():
                 Qt.QMessageBox.critical(self, 'Error', "Invalid int format")
-                previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select progress from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
             if int(data) not in range(0, 101):
                 Qt.QMessageBox.critical(self, 'Error', "Progress should be in [0, 100] borders")
-                previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
+                previous_value = Table.query(f"select progress from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
             self.taskProgressBar.setValue(int(data))
@@ -255,7 +256,7 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.clearContents()
         search_query = self.taskSearch.text()
         if len(search_query) != 0:
-            result_task = self.tasks.query('select name from Task where like(name, \'%' + search_query + '%\')')
+            result_task = Table.query('select name from Task where like(name, \'%' + search_query + '%\')')
         else:
             result_task = self.tasks.get_values()
 
@@ -290,7 +291,7 @@ class GanttApp(Qt.QMainWindow):
 
         result_tasks_table = Table("ResultTask", attributes=['name', 'start_date', 'duration'])
         print(self.tasks.get_values())
-        print(result_tasks_table.query('select * from ResultTask'))
+        print(Table.query('select * from ResultTask'))
         self.timeline(result_tasks_table)
 
 
