@@ -5,6 +5,8 @@ from PyQt5 import QtWidgets as Qt
 from PyQt5 import QtCore
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
+from PyQt5.uic.properties import QtWidgets
+from Qt import QtGui
 
 from interface import *
 
@@ -52,17 +54,21 @@ class GanttApp(Qt.QMainWindow):
         tempFinishDates = []
         temp = self.tasks.query('select start_date, duration from Task')
         ind = 0
+
+        task_names = self.tasks.get_values()
+        task_names.sort(key=lambda x: x[1])
+
         for i in temp:
             dat = i[0]
             year = dat[:4]
             month = dat[6:7]
             day = dat[-2:]
-            dateTemp = month + '/' + day + '/' + year
-            d = datetime.strptime(dateTemp, '%m/%d/%Y') + timedelta(int(i[1]), 0, 0)
+            dateTemp = year + '-' + month + '-' + day
+            d = datetime.strptime(dateTemp, '%Y-%m-%d') + timedelta(int(i[1]), 0, 0)
             tempFinishDates.append(d)
-            finishDates.append(d.strftime('%m/%d/%Y'))
+            finishDates.append(d.strftime('%Y-%m-%d'))
         maximumDeltaTime = minimumDateObj - tempFinishDates[-1]
-        for i in range (len(tempFinishDates)):
+        for i in range(len(tempFinishDates)):
             if ((tempFinishDates[i] - minimumDateObj) > maximumDeltaTime):
                 maximumDeltaTime = tempFinishDates[i] - minimumDateObj
                 ind = i
@@ -77,13 +83,24 @@ class GanttApp(Qt.QMainWindow):
         for i in taskNames:
             rowNames.append(i[0])
         self.tableWidget.setVerticalHeaderLabels(rowNames)
-        columnNames = [minimumDateObj.strftime('%m/%d/%Y')]
+        columnNames = [minimumDateObj.strftime('%Y-%m-%d')]
         currDateObj = minimumDateObj
         qq = 0
         while (tempFinishDates[ind] != currDateObj):
             currDateObj = currDateObj + timedelta(days=1)
-            columnNames.append(currDateObj.strftime('%m/%d/%Y'))
+            columnNames.append(currDateObj.strftime('%Y-%m-%d'))
         self.tableWidget.setHorizontalHeaderLabels(columnNames)
+
+        task_names = self.tasks.get_values()
+        task_names.sort(key=lambda x: x[1])
+
+        for task in task_names:
+            start_date = task[1]
+            duration = task[2]
+            for i in range(duration):
+                task_item = Qt.QTableWidgetItem('')
+                self.tableWidget.setItem(task_names.index(task), columnNames.index(start_date), task_item)
+                self.tableWidget.item(task_names.index(task), columnNames.index(start_date)).setBackground(QColor(200, 0, 200))
 
         self.searchButton.clicked.connect(self.search)
         self.taskSearch.returnPressed.connect(self.search)
@@ -99,13 +116,6 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setColumnCount(2)
         self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
-
-        for i in task_names:
-            print(i[1])
-
-        task_names.sort(key=lambda x: x[1])
-        for i in task_names:
-            print(i[1], i[2])
 
         for row in range(len(task_names)):
             task_item = Qt.QTableWidgetItem(task_names[row][0])
