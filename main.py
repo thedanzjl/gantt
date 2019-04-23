@@ -6,6 +6,9 @@ from PyQt5 import QtCore
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
 from PyQt5.uic.properties import QtWidgets
+
+
+from search import search as gs_search
 # from Qt import QtGui
 
 from interface import *
@@ -50,30 +53,30 @@ class GanttApp(Qt.QMainWindow):
         self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
         self.searchButton.clicked.connect(self.search)
         self.taskSearch.returnPressed.connect(self.search)
-        self.timeline()
+        self.GSBox.stateChanged.connect(self.GS_turned)
+        self.GSTopNspinBox.valueChanged.connect(self.GS)
 
-    def timeline(self):
+        self.timeline(self.tasks)
 
-        minimalDate = self.tasks.query('select min(start_date) from Task')
+    def timeline(self, table):
+        self.tableWidget.clearContents()
+        minimalDate = self.tasks.query(f'select min(start_date) from {table.table_name}')
         minimalDate = minimalDate[0][0]
         minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
         finish_dates = []
-        task_dates = self.tasks.query('select start_date, duration from Task order by start_date')  # start date with durations
-        ind = 0
-
-        # task_names = list(map(lambda x: x[0], task_dates))  # sort by start date
+        task_dates = self.tasks.query(f'select start_date, duration from {table.table_name} order by start_date')  # start date with durations
 
         for task_date in task_dates:
             dat, duration = task_date
             finish = datetime.strptime(dat, '%Y-%m-%d') + timedelta(int(duration), 0, 0)
             finish_dates.append(finish)
 
-        max_duration = self.tasks.query('select max(duration) from Task')[0][0]
-        max_date = self.tasks.query('select max(start_date) from Task')[0][0]
+        max_duration = self.tasks.query(f'select max(duration) from {table.table_name}')[0][0]
+        max_date = self.tasks.query(f'select max(start_date) from {table.table_name}')[0][0]
         max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - minimalDateObj).days
         max_duration += max_days_after_start - 1
 
-        task_names = self.tasks.query('select name from Task order by start_date')
+        task_names = self.tasks.query(f'select name from {table.table_name} order by start_date')
         task_names = map(lambda x: x[0], task_names)
 
         self.tableWidget.setVerticalHeaderLabels(task_names)
@@ -100,6 +103,9 @@ class GanttApp(Qt.QMainWindow):
         displays tasks and users in mainTable
         """
         task_names = self.tasks.get_values()
+        num_tasks = len(task_names)
+        self.GSTopNspinBox.setMaximum(num_tasks)
+
         self.mainTable.setRowCount(len(task_names))
         self.mainTable.setColumnCount(1)
         self.mainTable.setHorizontalHeaderLabels(['tasks'])
@@ -115,6 +121,7 @@ class GanttApp(Qt.QMainWindow):
         self.deleteTaskButton.setEnabled(True)
         self.taskDescriptionText.setEnabled(True)
         self.saveDescButton.setEnabled(True)
+        self.GSBox.setEnabled(True)
 
         values = self.tasks.get_by_name(item.text())
 
@@ -269,6 +276,22 @@ class GanttApp(Qt.QMainWindow):
         if answ == Qt.QMessageBox.Yes:
             self.tasks.delete_by_name(task_name)
             self.mainTable.removeRow(task_row)
+
+    def GS_turned(self, state):
+        """
+        :param state: state of checkbox GSBox. if activated state > 0, otherwise 0
+        """
+        self.GSTopNspinBox.setEnabled(True)
+
+    def GS(self, value):
+        current_task_name = self.mainTable.selectedItems()[0].text()
+        current_task = self.tasks.get_by_name(current_task_name)
+        gs_search(current_task, value)
+
+        result_tasks_table = Table("ResultTask", attributes=['name', 'start_date', 'duration'])
+        print(self.tasks.get_values())
+        print(result_tasks_table.query('select * from ResultTask'))
+        self.timeline(result_tasks_table)
 
 
 if __name__ == '__main__':

@@ -50,14 +50,14 @@ def search(t, k):
     end = time.time()
     print('search time: ', end - start)
     result = result[:k]
-    client.execute('DROP TABLE IF EXISTS Result_task')
+    client.execute('DROP TABLE IF EXISTS ResultTask')
 
     client.execute(''
-                   'CREATE TABLE Result_task '
+                   'CREATE TABLE ResultTask '
                    '(name String, start_date String, duration Int32) '
                    'ENGINE = Memory()')
 
-    client.execute('insert into Result_task values ', result)
+    client.execute('insert into ResultTask values ', result)
 
 
 
@@ -65,11 +65,3 @@ if __name__ == '__main__':
     t = client.execute("SELECT * FROM Task WHERE name = 'task 1'")
     search(t, 3)
 
-    y = client.execute("SELECT * FROM Result_task")
-
-    print(y)
-
-    e = client.execute("SELECT * from Score")
-    for w in e:
-        print(w)
-    # [('task 0', '2019-04-22', 10, (), 'description of task 0', 97, datetime.date(2019, 4, 22)),
