@@ -1,5 +1,4 @@
 from clickhouse_driver import Client
-from datetime import datetime
 
 
 class Table:
@@ -16,7 +15,7 @@ class Table:
         self.cols = len(attributes)
 
     def get_values(self):
-        return self.client.execute(f'select * from {self.table_name}')
+        return self.client.execute(f'select * from {self.table_name} order by name')
 
     def get_by_name(self, name):
         return self.client.execute(f"select * from {self.table_name} where name='{name}'")
@@ -42,6 +41,12 @@ class Table:
     def add(self, **values):
         self.client.execute(f'insert into {self.table_name} values', [values])
         self.rows += 1
+
+    def delete_by_name(self, name):
+        self.client.execute(f""
+                            f"alter table {self.table_name} "
+                            f"delete where name = '{name}'")
+        self.rows -= 1
 
 
 if __name__ == '__main__':

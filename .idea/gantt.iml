@@ -2,7 +2,11 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$" />
+<<<<<<< HEAD
+    <orderEntry type="jdk" jdkName="Python 3.6.1 (/Library/Frameworks/Python.framework/Versions/3.6/bin/python3)" jdkType="Python SDK" />
+=======
     <orderEntry type="inheritedJdk" />
+>>>>>>> d1f7acbcd53831bd843712a1ba47840f142d6dde
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
