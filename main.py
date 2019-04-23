@@ -228,7 +228,7 @@ class GanttApp(Qt.QMainWindow):
             return
         row = self.taskDetailTable.row(item)
         col = self.taskDetailTable.column(item)
-        name = self.mainTable.selectedItems()[0].text()
+        name = self.get_current_task_name()
         data = item.text()
         actual_attrs = list(filter(lambda x: x not in hidden_attrs, attributes))
         if actual_attrs[col] == 'start_date':
@@ -271,6 +271,9 @@ class GanttApp(Qt.QMainWindow):
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
             self.taskProgressBar.setValue(int(data))
+            widget = self.mainTable.cellWidget(self.mainTable.currentRow(), self.mainTable.currentColumn())
+            pgbar = widget.layout().itemAt(1).widget()
+            pgbar.setValue(int(data))
         if not isinstance(data, list) and not data.isdigit():
             data = f"'{data}'"
         self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
