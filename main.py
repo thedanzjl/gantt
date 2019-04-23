@@ -58,7 +58,7 @@ class GanttApp(Qt.QMainWindow):
         self.timeline(self.tasks)
 
     def timeline(self, table):
-        self.tableWidget.clearContents()
+        self.timelineTable.clearContents()
         minimalDate = Table.query(f'select min(start_date) from {table.table_name}')
         minimalDate = minimalDate[0][0]
         minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
@@ -76,19 +76,19 @@ class GanttApp(Qt.QMainWindow):
         max_duration += max_days_after_start - 1
 
         task_names = Table.query(f'select name from {table.table_name} order by start_date')
-        self.tableWidget.setRowCount(len(task_names))
+        self.timelineTable.setRowCount(len(task_names))
 
         task_names = map(lambda x: x[0], task_names)
 
-        self.tableWidget.setVerticalHeaderLabels(task_names)
+        self.timelineTable.setVerticalHeaderLabels(task_names)
 
         column_names = [minimalDate]
         for i in range(1, max_duration):
             next_date = str((minimalDateObj + timedelta(days=i)).date())
             column_names.append(next_date)
         num_cols = len(column_names)
-        self.tableWidget.setColumnCount(num_cols)
-        self.tableWidget.setHorizontalHeaderLabels(column_names)
+        self.timelineTable.setColumnCount(num_cols)
+        self.timelineTable.setHorizontalHeaderLabels(column_names)
 
         for i, task in enumerate(task_dates):
             start_date, duration = task
@@ -97,7 +97,7 @@ class GanttApp(Qt.QMainWindow):
             for day in range(duration):
                 task_item = Qt.QTableWidgetItem('')
                 task_item.setBackground(QColor(200, 0, 200))
-                self.tableWidget.setItem(i, days_after_start + day, task_item)
+                self.timelineTable.setItem(i, days_after_start + day, task_item)
 
     def display(self):
         """
@@ -264,6 +264,7 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setColumnCount(1)
         self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
+        self.mainTable.verticalHeader().setStretchLastSection(True)
 
         for row in range(len(result_task)):
             task_item = Qt.QTableWidgetItem(result_task[row][0])
