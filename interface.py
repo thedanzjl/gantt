@@ -35,12 +35,6 @@ class Table:
                             f"update {value_to_update[0]} = {value_to_update[1]} "
                             f"where name = '{name}'")
 
-    def delete_by_name(self, name):
-        self.client.execute(f""
-                            f"alter table {self.table_name} "
-                            f"delete where name = '{name}'")
-        self.rows -= 1
-
     def query(self, text):
         return self.client.execute(text)
 
