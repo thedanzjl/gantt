@@ -20,9 +20,9 @@ All entities save creation date which is necessary according to requirements of 
 ```
 #pseudocode
  def distance(task1, task2):
-        # duration and start_time
+        # duration and start_date
         # sum of squared differences
-        a = task1.start_time - task2.start_time
+        a = task1.start_date - task2.start_date
         b = task1.duration - task2.duration
         return sqrt(a**2 + b**2)
 ```
