@@ -8,7 +8,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.uic.properties import QtWidgets
 
 
-# from clickhouse_driver import
+from search import search as gs_search
 # from Qt import QtGui
 
 from interface import *
@@ -59,7 +59,7 @@ class GanttApp(Qt.QMainWindow):
         self.timeline(self.tasks)
 
     def timeline(self, table):
-
+        self.tableWidget.clearContents()
         minimalDate = self.tasks.query(f'select min(start_date) from {table.table_name}')
         minimalDate = minimalDate[0][0]
         minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
@@ -284,7 +284,14 @@ class GanttApp(Qt.QMainWindow):
         self.GSTopNspinBox.setEnabled(True)
 
     def GS(self, value):
-        print(value)
+        current_task_name = self.mainTable.selectedItems()[0].text()
+        current_task = self.tasks.get_by_name(current_task_name)
+        gs_search(current_task, value)
+
+        result_tasks_table = Table("ResultTask", attributes=['name', 'start_date', 'duration'])
+        print(self.tasks.get_values())
+        print(result_tasks_table.query('select * from ResultTask'))
+        self.timeline(result_tasks_table)
 
 
 if __name__ == '__main__':
