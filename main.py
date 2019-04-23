@@ -99,12 +99,12 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
 
-        for i in task_names:
-            print(i[1])
+        # for i in task_names:
+        #     print(i[1])
 
         task_names.sort(key=lambda x: x[1])
-        for i in task_names:
-            print(i[1], i[2])
+        # for i in task_names:
+        #     print(i[1], i[2])
 
         for row in range(len(task_names)):
             task_item = Qt.QTableWidgetItem(task_names[row][0])
@@ -126,11 +126,14 @@ class GanttApp(Qt.QMainWindow):
         attrs = zip(attributes, values[0])
         actual_attrs = list()
         description = ''
+        progress = 0
         for item in attrs:
             if item[0] == 'description':
                 description = item[1]
             elif item[0] not in hidden_attrs:
                 actual_attrs.append(item)
+            if item[0] == 'progress':
+                progress = item[1]
         self.taskDetailTable.setHorizontalHeaderLabels(map(lambda x: x[0].replace("_", " "), actual_attrs))
 
         for col, (attr, value) in enumerate(actual_attrs):
@@ -150,6 +153,7 @@ class GanttApp(Qt.QMainWindow):
             self.taskDetailTable.setItem(0, col, item)
 
         self.taskDescriptionText.setPlainText(description)
+        self.taskProgressBar.setValue(progress)
         self.saveDescButton.setStyleSheet("background-color: green")
 
         self.lock = False
@@ -162,7 +166,7 @@ class GanttApp(Qt.QMainWindow):
         else:
             assigned_users = [self.userComboBox.currentText()]
         self.tasks.add(name=name, start_date=str(datetime.today().date()), creation_date=datetime.today().date(),
-                       duration=1, assigned_users=assigned_users)
+                       duration=1, assigned_users=assigned_users, progress=0, description='')
 
         self.mainTable.setRowCount(self.tasks.rows)
 
@@ -170,6 +174,8 @@ class GanttApp(Qt.QMainWindow):
         self.lock = True
         self.mainTable.setItem(self.tasks.rows - 1, 0, item)
         self.lock = False
+        self.taskLine.setText('')  # clear textline
+        self.mainTable.setCurrentItem(item, QtCore.QItemSelectionModel.Select)
 
     def edit_task_meta(self, item):  # Print spaces between names of users to edit assigned_users field
         if self.lock:
@@ -218,6 +224,7 @@ class GanttApp(Qt.QMainWindow):
                 previous_value = self.tasks.query(f"select progress from Task where name = '{name}'")[0][0]
                 self.taskDetailTable.setItem(row, col, Qt.QTableWidgetItem(str(previous_value)))
                 return
+            self.taskProgressBar.setValue(int(data))
         if not isinstance(data, list) and not data.isdigit():
             data = f"'{data}'"
         self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
@@ -227,6 +234,7 @@ class GanttApp(Qt.QMainWindow):
         name = name.replace(' ', '_')
         self.users.add(name=name, creation_date=datetime.today().date())
         self.userComboBox.addItem(name)
+        self.userLine.setText('')
 
     def save_task_desc(self):
         desc = self.taskDescriptionText.toPlainText()
