@@ -80,6 +80,10 @@ class GanttApp(Qt.QMainWindow):
         numOfColumns = int(tteemmpp)
         self.tableWidget.setColumnCount(numOfColumns)
         taskNames = self.users.query('select name from Task')
+
+        task_names = self.tasks.get_values()
+        task_names.sort(key=lambda x: x[1])
+
         rowNames = []
         for i in taskNames:
             rowNames.append(i[0])
@@ -92,16 +96,13 @@ class GanttApp(Qt.QMainWindow):
             columnNames.append(currDateObj.strftime('%Y-%m-%d'))
         self.tableWidget.setHorizontalHeaderLabels(columnNames)
 
-        task_names = self.tasks.get_values()
-        task_names.sort(key=lambda x: x[1])
-
         for task in task_names:
             start_date = task[1]
             duration = task[2]
             for i in range(duration):
                 task_item = Qt.QTableWidgetItem('')
-                self.tableWidget.setItem(task_names.index(task), columnNames.index(start_date), task_item)
-                self.tableWidget.item(task_names.index(task), columnNames.index(start_date)).setBackground(QColor(200, 0, 200))
+                self.tableWidget.setItem(task_names.index(task), columnNames.index(start_date) + i, task_item)
+                self.tableWidget.item(task_names.index(task), columnNames.index(start_date) + i).setBackground(QColor(200, 0, 200))
 
         self.searchButton.clicked.connect(self.search)
         self.taskSearch.returnPressed.connect(self.search)
