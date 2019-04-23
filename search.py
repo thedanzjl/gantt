@@ -39,15 +39,26 @@ def search(t, k):
 
     client.execute('insert into Score values ', values)
 
+
     result = client.execute('SELECT name, start_date, duration from Score ORDER BY score')
     end = time.time()
     print('search time: ', end - start)
     result = result[:k]
+    client.execute('DROP TABLE IF EXISTS Result_task')
 
-    return result
+    client.execute(''
+                   'CREATE TABLE Result_task '
+                   '(name String, start_date String, duration Int32) '
+                   'ENGINE = Memory()')
+
+    client.execute('insert into Result_task values ', result)
+
 
 
 if __name__ == '__main__':
     t = client.execute("SELECT * FROM Task WHERE name = 'task 1'")
-    print(search(t, 3))
+    search(t, 3)
+
+    e = client.execute("SELECT * from Result_task")
+    print(e)
     # [('task 0', '2019-04-22', 10, (), 'description of task 0', 97, datetime.date(2019, 4, 22)),
