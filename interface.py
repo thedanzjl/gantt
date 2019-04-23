@@ -42,6 +42,12 @@ class Table:
         self.client.execute(f'insert into {self.table_name} values', [values])
         self.rows += 1
 
+    def delete_by_name(self, name):
+        self.client.execute(f""
+                            f"alter table {self.table_name} "
+                            f"delete where name = '{name}'")
+        self.rows -= 1
+
 
 if __name__ == '__main__':
     pass

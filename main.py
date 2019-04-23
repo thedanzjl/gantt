@@ -43,6 +43,7 @@ class GanttApp(Qt.QMainWindow):
         self.addUserButton.clicked.connect(self.add_user)
         self.userLine.returnPressed.connect(self.add_user)
         self.taskDescriptionText.textChanged.connect(self.desc_changed)
+        self.deleteTaskButton.clicked.connect(self.delete_task)
         self.saveDescButton.setStyleSheet("background-color: green")
         self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
         minimalDate = self.tasks.query('select min(start_date) from Task')
@@ -93,26 +94,21 @@ class GanttApp(Qt.QMainWindow):
         displays tasks and users in mainTable
         """
         task_names = self.tasks.get_values()
-        user_names = self.users.get_values()
-        rows = max(len(task_names), len(user_names))
-        self.mainTable.setRowCount(rows)
-        self.mainTable.setColumnCount(2)
-        self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
+        self.mainTable.setRowCount(len(task_names))
+        self.mainTable.setColumnCount(1)
+        self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
 
         for row in range(len(task_names)):
             task_item = Qt.QTableWidgetItem(task_names[row][0])
             self.mainTable.setItem(row, 0, task_item)
 
-        for row in range(len(user_names)):
-            user_item = Qt.QTableWidgetItem(user_names[row][0])
-            self.mainTable.setItem(row, 1, user_item)
-
     def display_meta(self, item):
         self.lock = True
-        if item.column() == 1:  # user name column clicked
-            self.lock = False
-            return
+
+        self.deleteTaskButton.setEnabled(True)
+        self.taskDescriptionText.setEnabled(True)
+        self.saveDescButton.setEnabled(True)
 
         values = self.tasks.get_by_name(item.text())
 
@@ -225,11 +221,6 @@ class GanttApp(Qt.QMainWindow):
         self.users.add(name=name, creation_date=datetime.today().date())
         self.userComboBox.addItem(name)
 
-        item = Qt.QTableWidgetItem(name)
-        self.lock = True
-        self.mainTable.setItem(self.users.rows - 1, 1, item)
-        self.lock = False
-
     def save_task_desc(self):
         desc = self.taskDescriptionText.toPlainText()
         task_name = self.mainTable.selectedItems()[0].text()
@@ -248,14 +239,22 @@ class GanttApp(Qt.QMainWindow):
             result_task = self.tasks.get_values()
 
         self.mainTable.setRowCount(len(result_task))
-        self.mainTable.setColumnCount(2)
-        self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
+        self.mainTable.setColumnCount(1)
+        self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
 
         for row in range(len(result_task)):
             task_item = Qt.QTableWidgetItem(result_task[row][0])
             self.mainTable.setItem(row, 0, task_item)
 
+    def delete_task(self):
+        task_item = self.mainTable.selectedItems()[0]
+        task_name = task_item.text()
+        task_row = task_item.row()
+        answ = Qt.QMessageBox.question(self, 'Delete task', f'You sure you want to delete {task_name}')
+        if answ == Qt.QMessageBox.Yes:
+            self.tasks.delete_by_name(task_name)
+            self.mainTable.removeRow(task_row)
 
 
 if __name__ == '__main__':
