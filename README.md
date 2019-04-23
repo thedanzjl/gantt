@@ -2,7 +2,7 @@
 
 BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
 
-## Technical details
+## Technical information
 ### Database organization
 ![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/23/165ebb586577dde3d22f7e22c49cdddd-full.jpg)
 
@@ -65,4 +65,28 @@ After it, you can run the project. Execute the next command and you will see the
 <code> python3 main.py </code>
   
 ### How to use the application
+At first, to create your own Gantt Chart you need to create some amount of tasks and some amount of users to have the possibility to assign them to particular tasks.
 
+Creation of a user: 
+* print the name of a user in the corresponding line (near the button "add new dev")
+* press the button "add new dev"
+* see the appearance of the newly created user in the drop list 
+
+Creation of a task:
+* print the desirable name of the task in corresponding line (near the button "add new task")
+* choose someone from users to assign the task to him or set it "None"
+* press the button "add new task"
+* see the task in the table from left
+* press on the newly created task to change default values of start date, description, duration and assigned users (press on necessary attribute to write new value, add any number of assigned user by printing their names between spaces, print new description in the field below "Description of the task" inscription, after press the button "save changes") or to delete it (press the button "delete the task"). 
+
+For now, you can see all your added tasks in the right table which represents created Gantt Chart. The application also provides some extra features.
+
+Search a task:
+* print your search query in the corresponding line (near the button "search")
+* press the button "search"
+* see all tasks with names which contain your search query
+
+Spatial search (see section Geospatial search for details):
+* press on the task for which you want to find nearest tasks
+* mark the box "GS" and print the number of nearest task you want
+* see results in the table from the right
