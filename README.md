@@ -18,11 +18,12 @@ All entities save creation date which is necessary according to requirements of 
 1. Is used for getting k nearest Task records for specific task. 
 2. Distance is the Euclidian distance where x is start_date and y is duration
 ```
- def distance(first, second):
+#pseudocode
+ def distance(task1, task2):
         # duration and start_time
         # sum of squared differences
-        a = (datetime.datetime.strptime(first[1], '%Y-%m-%d') - datetime.datetime.strptime(second[0][1], '%Y-%m-%d')) / datetime.timedelta(days=1)
-        b = first[2] - second[0][2]
+        a = task1.start_time - task2.start_time
+        b = task1.duration - task2.duration
         return sqrt(a**2 + b**2)
 ```
 
