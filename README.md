@@ -15,6 +15,16 @@ It consists of:
 All entities save creation date which is necessary according to requirements of MergeTree engine in ClickHouse. 
 
 ### Geospatial search
+1. Is used for getting k nearest Task records for specific task. 
+2. Distance is the Euclidian distance where x is start_date and y is duration
+```
+ def distance(first, second):
+        # duration and start_time
+        # sum of squared differences
+        a = (datetime.datetime.strptime(first[1], '%Y-%m-%d') - datetime.datetime.strptime(second[0][1], '%Y-%m-%d')) / datetime.timedelta(days=1)
+        b = first[2] - second[0][2]
+        return sqrt(a**2 + b**2)
+```
 
 ## Utilization of the project
 
