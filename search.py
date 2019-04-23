@@ -24,7 +24,13 @@ def search(t, k):
 
     start = time.time()
 
-    aim = t[0][1]
+    client.execute('DROP TABLE IF EXISTS Score')
+
+    client.execute(''
+                   'CREATE TABLE Score '
+                   '(name String, start_date String, duration Int32, score Float32, creation_date Date) '
+                   'ENGINE = Memory()')
+
 
     all = client.execute("SELECT * FROM Task")
 
@@ -59,6 +65,3 @@ if __name__ == '__main__':
     t = client.execute("SELECT * FROM Task WHERE name = 'task 1'")
     search(t, 3)
 
-    e = client.execute("SELECT * from ResultTask")
-    print(e)
-    # [('task 0', '2019-04-22', 10, (), 'description of task 0', 97, datetime.date(2019, 4, 22)),
