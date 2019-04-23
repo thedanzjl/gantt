@@ -100,6 +100,13 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setHorizontalHeaderLabels(['tasks', 'users'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
 
+        for i in task_names:
+            print(i[1])
+
+        task_names.sort(key=lambda x: x[1])
+        for i in task_names:
+            print(i[1], i[2])
+
         for row in range(len(task_names)):
             task_item = Qt.QTableWidgetItem(task_names[row][0])
             self.mainTable.setItem(row, 0, task_item)
