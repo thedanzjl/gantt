@@ -79,10 +79,13 @@ class GanttApp(Qt.QMainWindow):
         tteemmpp = tteemmpp[:-2]
         numOfColumns = int(tteemmpp)
         self.tableWidget.setColumnCount(numOfColumns)
-        taskNames = self.users.query('select name from Task')
 
         task_names = self.tasks.get_values()
         task_names.sort(key=lambda x: x[1])
+        
+        taskNames = []
+        for i in task_names:
+            taskNames.append(i)
 
         rowNames = []
         for i in taskNames:
