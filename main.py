@@ -6,7 +6,7 @@ from PyQt5 import QtCore
 from PyQt5 import uic
 from PyQt5.QtGui import QColor
 from PyQt5.uic.properties import QtWidgets
-from Qt import QtGui
+# from Qt import QtGui
 
 from interface import *
 
@@ -48,67 +48,52 @@ class GanttApp(Qt.QMainWindow):
         self.deleteTaskButton.clicked.connect(self.delete_task)
         self.saveDescButton.setStyleSheet("background-color: green")
         self.tableWidget.setRowCount(len(self.users.query('select name from Task')))
-        minimalDate = self.tasks.query('select min(start_date) from Task')
-        minimalDate = minimalDate[0][0]
-        minimumDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
-        finishDates = []
-        tempFinishDates = []
-        temp = self.tasks.query('select start_date, duration from Task')
-        ind = 0
-
-        task_names = self.tasks.get_values()
-        task_names.sort(key=lambda x: x[1])
-
-        for i in temp:
-            dat = i[0]
-            year = dat[:4]
-            month = dat[6:7]
-            day = dat[-2:]
-            dateTemp = year + '-' + month + '-' + day
-            d = datetime.strptime(dateTemp, '%Y-%m-%d') + timedelta(int(i[1]), 0, 0)
-            tempFinishDates.append(d)
-            finishDates.append(d.strftime('%Y-%m-%d'))
-        maximumDeltaTime = minimumDateObj - tempFinishDates[-1]
-        for i in range(len(tempFinishDates)):
-            if ((tempFinishDates[i] - minimumDateObj) > maximumDeltaTime):
-                maximumDeltaTime = tempFinishDates[i] - minimumDateObj
-                ind = i
-        tteemmpp = str(maximumDeltaTime)
-        while (tteemmpp[-1]!='d'):
-            tteemmpp = tteemmpp[:-2]
-        tteemmpp = tteemmpp[:-2]
-        numOfColumns = int(tteemmpp)
-        self.tableWidget.setColumnCount(numOfColumns)
-
-        task_names = self.tasks.get_values()
-        task_names.sort(key=lambda x: x[1])
-        
-        taskNames = []
-        for i in task_names:
-            taskNames.append(i)
-
-        rowNames = []
-        for i in taskNames:
-            rowNames.append(i[0])
-        self.tableWidget.setVerticalHeaderLabels(rowNames)
-        columnNames = [minimumDateObj.strftime('%Y-%m-%d')]
-        currDateObj = minimumDateObj
-        qq = 0
-        while (tempFinishDates[ind] != currDateObj):
-            currDateObj = currDateObj + timedelta(days=1)
-            columnNames.append(currDateObj.strftime('%Y-%m-%d'))
-        self.tableWidget.setHorizontalHeaderLabels(columnNames)
-
-        for task in task_names:
-            start_date = task[1]
-            duration = task[2]
-            for i in range(duration):
-                task_item = Qt.QTableWidgetItem('')
-                self.tableWidget.setItem(task_names.index(task), columnNames.index(start_date) + i, task_item)
-                self.tableWidget.item(task_names.index(task), columnNames.index(start_date) + i).setBackground(QColor(200, 0, 200))
-
         self.searchButton.clicked.connect(self.search)
         self.taskSearch.returnPressed.connect(self.search)
+        self.timeline()
+
+    def timeline(self):
+
+        minimalDate = self.tasks.query('select min(start_date) from Task')
+        minimalDate = minimalDate[0][0]
+        minimalDateObj = datetime.strptime(minimalDate, '%Y-%m-%d')
+        finish_dates = []
+        task_dates = self.tasks.query('select start_date, duration from Task order by start_date')  # start date with durations
+        ind = 0
+
+        # task_names = list(map(lambda x: x[0], task_dates))  # sort by start date
+
+        for task_date in task_dates:
+            dat, duration = task_date
+            finish = datetime.strptime(dat, '%Y-%m-%d') + timedelta(int(duration), 0, 0)
+            finish_dates.append(finish)
+
+        max_duration = self.tasks.query('select max(duration) from Task')[0][0]
+        max_date = self.tasks.query('select max(start_date) from Task')[0][0]
+        max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - minimalDateObj).days
+        max_duration += max_days_after_start - 1
+
+        task_names = self.tasks.query('select name from Task order by start_date')
+        task_names = map(lambda x: x[0], task_names)
+
+        self.tableWidget.setVerticalHeaderLabels(task_names)
+
+        column_names = [minimalDate]
+        for i in range(1, max_duration):
+            next_date = str((minimalDateObj + timedelta(days=i)).date())
+            column_names.append(next_date)
+        num_cols = len(column_names)
+        self.tableWidget.setColumnCount(num_cols)
+        self.tableWidget.setHorizontalHeaderLabels(column_names)
+
+        for i, task in enumerate(task_dates):
+            start_date, duration = task
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            days_after_start = (start_date - minimalDateObj).days
+            for day in range(duration):
+                task_item = Qt.QTableWidgetItem('')
+                task_item.setBackground(QColor(200, 0, 200))
+                self.tableWidget.setItem(i, days_after_start + day, task_item)
 
     def display(self):
         """

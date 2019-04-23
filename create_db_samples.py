@@ -18,13 +18,19 @@ def main():
                    '(name String, creation_date Date) '
                    'ENGINE = MergeTree(creation_date, name, 8192)')
 
-    values = [[f'task {i}', str(datetime.today().date()), randint(1, 10), [], f'description of task {i}',
+    client.execute('DROP TABLE IF EXISTS Score')
+
+    client.execute(''
+                   'CREATE TABLE Score '
+                   '(name String, start_date String, duration Int32, score Float32, creation_date Date) '
+                   'ENGINE = MergeTree(creation_date, name, 8192)')
+
+    values = [[f'task {i}', str(datetime(2019, 11, randint(1, 7)).date()), randint(1, 10), [], f'description of task {i}',
                randint(0, 100), datetime.today().date()] for i in range(10)]
     users = [[f'default_user{i}', datetime.today().date()] for i in range(2)]
 
     client.execute('insert into Task values ', values)
     client.execute('insert into User values', users)
-
 
 
 if __name__ == '__main__':

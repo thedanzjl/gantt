@@ -22,21 +22,11 @@ def search(t, k):
         b = first[2] - second[0][2]
         return sqrt(a**2 + b**2)
 
-
-
     start = time.time()
 
     aim = t[0][1]
 
-
     all = client.execute("SELECT * FROM Task")
-
-    client.execute('DROP TABLE IF EXISTS Score')
-
-    client.execute(''
-                   'CREATE TABLE Score '
-                   '(name String, start_date String, duration Int32, score Float32, creation_date Date) '
-                   'ENGINE = MergeTree(creation_date, name, 8192)')
 
     values = [
         [str(i[0]),
