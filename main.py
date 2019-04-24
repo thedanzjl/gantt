@@ -54,7 +54,6 @@ class GanttApp(Qt.QMainWindow):
         self.taskSearch.returnPressed.connect(self.search)
         self.GSBox.stateChanged.connect(self.GS_turned)
         self.GSTopNspinBox.valueChanged.connect(self.GS)
-        self.timelineTable.horizontalHeader().setStretchLastSection(True)
         self.ganttTabWidget.setCurrentIndex(0)
         self.taskDetailTable.verticalHeader().setStretchLastSection(True)
 
@@ -106,7 +105,7 @@ class GanttApp(Qt.QMainWindow):
     def update_timeline(self):
         if self.GSBox.checkState() > 0:  # GS mode activated
             top_closest = self.GSTopNspinBox.value()
-            current_task_name = self.mainTable.selectedItems()[0].text()
+            current_task_name = self.get_current_task_name()
             current_task = self.tasks.get_by_name(current_task_name)
             gs_search(current_task, top_closest)
             result_task_table = Table('ResultTask', attributes=['name', 'start_date', 'duration'])
@@ -291,7 +290,7 @@ class GanttApp(Qt.QMainWindow):
 
     def save_task_desc(self):
         desc = self.taskDescriptionText.toPlainText()
-        task_name = self.mainTable.selectedItems()[0].text()
+        task_name = self.get_current_task_name()
         self.tasks.update_by_name(task_name, ('description', f"'{desc}'"))
         self.saveDescButton.setStyleSheet("background-color: green")
 
@@ -301,10 +300,18 @@ class GanttApp(Qt.QMainWindow):
     def search(self):
         self.mainTable.clearContents()
         search_query = self.taskSearch.text()
+        show_all = False
         if len(search_query) != 0:
-            result_task = Table.query('select name, progress from Task where like(name, \'%' + search_query + '%\')')
+            result_task = Table.query('select * from Task where like(name, \'%' + search_query + '%\')')
+            Table.query('drop table if exists ResultTask')
+            Table.query(''
+                        'CREATE TABLE ResultTask '
+                        '(name String, start_date String, duration Int32) '
+                        'ENGINE = Memory()')
+            result = Table('ResultTask', ['name', 'start_date', 'duration'])
         else:
-            result_task = Table.query('select name, progress from Task')
+            result_task = Table.query('select * from Task')
+            show_all = True
 
         self.mainTable.setRowCount(len(result_task))
         self.mainTable.setColumnCount(1)
@@ -312,16 +319,27 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.horizontalHeader().setStretchLastSection(True)
         self.mainTable.verticalHeader().setStretchLastSection(True)
 
+        progress_i = attributes.index('progress')
         for row in range(len(result_task)):
+            task = result_task[row]
+            if not show_all:
+                result.add(name=task[0], start_date=task[attributes.index('start_date')], duration=attributes.index('duration'))
             task_widget = Qt.QWidget()
             layout = Qt.QVBoxLayout()
             pgbar = Qt.QProgressBar()
-            pgbar.setValue(result_task[row][1])
-            layout.addWidget(Qt.QLabel(result_task[row][0]))
+            pgbar.setValue(task[progress_i])
+            layout.addWidget(Qt.QLabel(task[0]))
             layout.addWidget(pgbar)
 
             task_widget.setLayout(layout)
             self.mainTable.setCellWidget(row, 0, task_widget)
+
+        if not show_all and len(result_task) > 0:
+            self.timeline(table=result, label_content=f'Tasks returned by query "{search_query}"')
+        elif not show_all and len(result_task) == 0:
+            self.mainTable.setRowCount(0)
+        else:
+            self.update_timeline()
 
     def get_current_task_name(self):
         row, col = self.mainTable.currentRow(), self.mainTable.currentColumn()

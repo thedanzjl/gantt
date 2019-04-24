@@ -221,6 +221,11 @@
               </item>
               <item>
                <widget class="QLabel" name="taskNameLabel">
+                <property name="font">
+                 <font>
+                  <pointsize>17</pointsize>
+                 </font>
+                </property>
                 <property name="text">
                  <string>no task selected</string>
                 </property>
@@ -298,6 +303,11 @@
                   <width>16777215</width>
                   <height>50</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>17</pointsize>
+                 </font>
                 </property>
                 <property name="text">
                  <string>Description of the task </string>
@@ -411,6 +421,11 @@
                 <height>50</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <pointsize>17</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>delete the task</string>
               </property>
@@ -435,6 +450,11 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QLabel" name="timelineLabel">
+            <property name="font">
+             <font>
+              <pointsize>17</pointsize>
+             </font>
+            </property>
             <property name="text">
              <string>Timeline.</string>
             </property>
