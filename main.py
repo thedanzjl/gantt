@@ -278,6 +278,7 @@ class GanttApp(Qt.QMainWindow):
         if not isinstance(data, list) and not data.isdigit():
             data = f"'{data}'"
         self.tasks.update_by_name(name, value_to_update=(actual_attrs[col], data))
+        print(Table.query(f"select duration from Task where name = '{name}'"))
 
         self.update_timeline()
 
@@ -323,7 +324,8 @@ class GanttApp(Qt.QMainWindow):
         for row in range(len(result_task)):
             task = result_task[row]
             if not show_all:
-                result.add(name=task[0], start_date=task[attributes.index('start_date')], duration=attributes.index('duration'))
+                result.add(name=task[0], start_date=task[attributes.index('start_date')],
+                           duration=task[attributes.index('duration')])
             task_widget = Qt.QWidget()
             layout = Qt.QVBoxLayout()
             pgbar = Qt.QProgressBar()
