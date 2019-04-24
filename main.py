@@ -54,8 +54,9 @@ class GanttApp(Qt.QMainWindow):
         self.taskSearch.returnPressed.connect(self.search)
         self.GSBox.stateChanged.connect(self.GS_turned)
         self.GSTopNspinBox.valueChanged.connect(self.GS)
-        self.timelineTable.verticalHeader().setStretchLastSection(True)
         self.timelineTable.horizontalHeader().setStretchLastSection(True)
+        self.ganttTabWidget.setCurrentIndex(0)
+        self.taskDetailTable.verticalHeader().setStretchLastSection(True)
 
         self.timeline(self.tasks)
 
@@ -74,7 +75,7 @@ class GanttApp(Qt.QMainWindow):
 
         max_duration = Table.query(f'select max(duration) from {table.table_name}')[0][0]
         max_date = Table.query(f'select max(start_date) from {table.table_name}')[0][0]
-        self.timelineLabel.setText(f'Timeline [{min_date.replace("-", "/")} - {max_date.replace("-", "/")}]. ' + label_content)
+        self.timelineLabel.setText('Timeline. ' + label_content)
         max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - min_dateObj).days
         max_duration += max_days_after_start - 1
 
@@ -153,6 +154,7 @@ class GanttApp(Qt.QMainWindow):
         self.GSBox.setEnabled(True)
 
         task_name = self.get_current_task_name()
+        self.taskNameLabel.setText(task_name)
 
         values = self.tasks.get_by_name(task_name)
 
@@ -302,7 +304,7 @@ class GanttApp(Qt.QMainWindow):
         if len(search_query) != 0:
             result_task = Table.query('select name, progress from Task where like(name, \'%' + search_query + '%\')')
         else:
-            result_task = self.tasks.get_values()
+            result_task = Table.query('select name, progress from Task')
 
         self.mainTable.setRowCount(len(result_task))
         self.mainTable.setColumnCount(1)
@@ -350,7 +352,7 @@ class GanttApp(Qt.QMainWindow):
                 self.update_timeline()
 
     def GS(self, top_closest):
-        current_task_name = self.mainTable.selectedItems()[0].text()
+        current_task_name = self.get_current_task_name()
         current_task = self.tasks.get_by_name(current_task_name)
         gs_search(current_task, top_closest)
 

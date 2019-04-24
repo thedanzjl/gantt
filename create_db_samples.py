@@ -19,7 +19,7 @@ def main():
                    'ENGINE = MergeTree(creation_date, name, 8192)')
 
     values = [[f'task {i}', str(datetime(2019, 4, randint(20, 27)).date()), randint(1, 10), [], f'description of task {i}',
-               randint(0, 100), datetime.today().date()] for i in range(10)]
+               randint(0, 100), datetime.today().date()] for i in range(20)]
     users = [[f'default_user{i}', datetime.today().date()] for i in range(2)]
 
     client.execute('insert into Task values ', values)
