@@ -4,15 +4,18 @@ BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
 
 ## Technical information
 ### Database organization
-![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/23/165ebb586577dde3d22f7e22c49cdddd-full.jpg)
+![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/25/c947958def3cdbbf7f91a40e5cb00bd9-full.jpg)
 
 The presented model diagram shows the structure of the project's database.
 It consists of:
 * <b>Task</b>: the main part from which the Gantt chart is created. Values like name, description and assigned a user or multiple users specify the particular task; start date, duration and task progress are needed to display the Gantt chart according to its main functionality. 
 * <b>User</b>: consist of user's name which can be assigned to one or more tasks.
-* <b>Score</b>: created for geospatial search queries. The table can be created for every task (suppose some initial task) and collects the values like name of some task in the database (let call it database task), database task's start date and score (the difference between the start date of initial task and database task). More details about it in the geospatial search section.
+* <b>Score</b>: created for geospatial search queries. The table can be created for every task (suppose some initial task) and collects the values like name of some task in the database (let call it database task), database task's duration and score (the difference between the start date of initial task and database task). More details about it in the geospatial search section.
+* <b>ResultTask</b>: contains results of geospatial seach function (name, start date, duration are used for plotting graph).
 
-All entities save creation date which is necessary according to requirements of MergeTree engine in ClickHouse. 
+Task and User save creation date which is necessary according to requirements of MergeTree engine in ClickHouse (name and creation date are userd as a primary key in both cases).
+
+Score and ResultTask are temporary tables with Memory engine.
 
 ### Geospatial search
 1. Is used for getting k nearest Task records for specific task. 
@@ -86,7 +89,7 @@ Search a task:
 * press the button "search"
 * see all tasks with names which contain your search query
 
-Spatial search (see section Geospatial search for details):
+Geospatial search (see section Geospatial search for details):
 * press on the task for which you want to find nearest tasks
 * mark the box "GS" and print the number of nearest task you want
 * see results in the table from the right
