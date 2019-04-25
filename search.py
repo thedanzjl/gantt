@@ -28,9 +28,8 @@ def search(t, k):
 
     client.execute(''
                    'CREATE TABLE Score '
-                   '(name String, start_date String, duration Int32, score Float32, creation_date Date) '
+                   '(name String, start_date String, duration Int32, score Float32) '
                    'ENGINE = Memory()')
-
 
     all = client.execute("SELECT * FROM Task")
 
@@ -39,12 +38,10 @@ def search(t, k):
          str(i[1]),
          i[2],
          distance(i, t),
-         datetime.datetime.today().date()
          ]
         for i in all if i[0] != t[0][0]]
 
     client.execute('insert into Score values ', values)
-
 
     result = client.execute('SELECT name, start_date, duration from Score ORDER BY score')
     end = time.time()
@@ -58,7 +55,6 @@ def search(t, k):
                    'ENGINE = Memory()')
 
     client.execute('insert into ResultTask values ', result)
-
 
 
 if __name__ == '__main__':

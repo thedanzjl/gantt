@@ -76,7 +76,7 @@ class GanttApp(Qt.QMainWindow):
         max_date = Table.query(f'select max(start_date) from {table.table_name}')[0][0]
         self.timelineLabel.setText('Timeline. ' + label_content)
         max_days_after_start = (datetime.strptime(max_date, '%Y-%m-%d') - min_dateObj).days
-        max_duration += max_days_after_start - 1
+        max_duration += max_days_after_start
 
         task_names = Table.query(f'select name from {table.table_name} order by start_date')
         self.timelineTable.setRowCount(len(task_names))
@@ -102,7 +102,11 @@ class GanttApp(Qt.QMainWindow):
                 task_item.setBackground(QColor(200, 0, 200))
                 self.timelineTable.setItem(i, days_after_start + day, task_item)
 
-    def update_timeline(self):
+    def update_timeline(self, search_mode=False):
+        if search_mode:
+            table = Table('ResultTask', ['name', 'start_date', 'duration'])
+            self.timeline(table=table)
+            return
         if self.GSBox.checkState() > 0:  # GS mode activated
             top_closest = self.GSTopNspinBox.value()
             current_task_name = self.get_current_task_name()
@@ -127,7 +131,7 @@ class GanttApp(Qt.QMainWindow):
         self.mainTable.setColumnCount(1)
         self.mainTable.setHorizontalHeaderLabels(['tasks'])
         self.mainTable.horizontalHeader().setStretchLastSection(True)
-        self.mainTable.verticalHeader().setStretchLastSection(True)
+        # self.mainTable.verticalHeader().setStretchLastSection(True)
         self.mainTable.verticalHeader().setDefaultSectionSize(57)
 
         progress_i = attributes.index('progress')
@@ -229,7 +233,12 @@ class GanttApp(Qt.QMainWindow):
             return
         row = self.taskDetailTable.row(item)
         col = self.taskDetailTable.column(item)
-        name = self.get_current_task_name()
+        try:
+            name = self.get_current_task_name()
+        except AttributeError as err:
+            Qt.QMessageBox.critical(self, 'Error', 'No task selected')
+            self.clear_meta()
+            return
         data = item.text()
         actual_attrs = list(filter(lambda x: x not in hidden_attrs, attributes))
         if actual_attrs[col] == 'start_date':
@@ -296,6 +305,8 @@ class GanttApp(Qt.QMainWindow):
         self.saveDescButton.setStyleSheet("background-color: green")
 
     def desc_changed(self):
+        if self.lock:
+            return
         self.saveDescButton.setStyleSheet("background-color: red")
 
     def search(self):
@@ -311,7 +322,7 @@ class GanttApp(Qt.QMainWindow):
                         'ENGINE = Memory()')
             result = Table('ResultTask', ['name', 'start_date', 'duration'])
         else:
-            result_task = Table.query('select * from Task')
+            result_task = self.tasks.get_values()
             show_all = True
 
         self.mainTable.setRowCount(len(result_task))
@@ -343,6 +354,10 @@ class GanttApp(Qt.QMainWindow):
         else:
             self.update_timeline()
 
+        self.lock = True
+        self.GSBox.setChecked(False)
+        self.lock = False
+
     def get_current_task_name(self):
         row, col = self.mainTable.currentRow(), self.mainTable.currentColumn()
         item = self.mainTable.cellWidget(row, col)
@@ -358,12 +373,16 @@ class GanttApp(Qt.QMainWindow):
         if answ == Qt.QMessageBox.Yes:
             self.tasks.delete_by_name(task_name)
             self.mainTable.removeRow(task_row)
-        self.update_timeline()
+            self.clear_meta()
+
+        # self.update_timeline(search_mode=True)
 
     def GS_turned(self, state):
         """
         :param state: state of checkbox GSBox. if activated state > 0, otherwise 0
         """
+        if self.lock:
+            return
         self.GSTopNspinBox.setEnabled(state > 0)
         if state == 0:
             self.timeline(self.tasks)
@@ -372,13 +391,25 @@ class GanttApp(Qt.QMainWindow):
                 self.update_timeline()
 
     def GS(self, top_closest):
-        current_task_name = self.get_current_task_name()
+        try:
+            current_task_name = self.get_current_task_name()
+        except AttributeError:
+            Qt.QMessageBox.critical(self, 'Error', 'no task selected')
+            self.clear_meta()
+            return
         current_task = self.tasks.get_by_name(current_task_name)
         gs_search(current_task, top_closest)
 
         result_tasks_table = Table("ResultTask", attributes=['name', 'start_date', 'duration'])
         self.timeline(result_tasks_table,
                       label_content=f'Geospatial Search for task: "{current_task_name}". Top {top_closest} closest. ')
+
+    def clear_meta(self):
+        self.taskDetailTable.clearContents()
+        self.taskNameLabel.setText('no task selected')
+        self.lock = True
+        self.taskDescriptionText.setPlainText('')
+        self.lock = False
 
 
 if __name__ == '__main__':
