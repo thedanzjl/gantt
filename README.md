@@ -4,7 +4,7 @@ BS17-07-05 project for DMD2. Gantt Chart using Clickhouse DB
 
 ## Technical information
 ### Database organization
-![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/25/c947958def3cdbbf7f91a40e5cb00bd9-full.jpg)
+![Database model diagram](https://cdn1.savepice.ru/uploads/2019/4/25/32951f717fd1dfa1b7cae4ce4040aff7-full.jpg)
 
 The presented model diagram shows the structure of the project's database.
 It consists of:
